@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Create Account - TrustNova Bank</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<section class="login-page">
+
+
+    <div class="login-box">
+
+
+        <img
+            src="images/logo.png"
+            class="login-logo"
+            alt="TrustNova Bank"
+        >
+
+
+        <h1>Create Account</h1>
+
+        <p>
+            Join TrustNova Bank today
+        </p>
+
+
+        <form id="registerForm">
+
+
+            <input
+                type="text"
+                id="first_name"
+                name="first_name"
+                placeholder="First Name"
+                autocomplete="given-name"
+                required
+            >
+
+
+            <input
+                type="text"
+                id="last_name"
+                name="last_name"
+                placeholder="Last Name"
+                autocomplete="family-name"
+                required
+            >
+
+
+            <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Email Address"
+                autocomplete="email"
+                required
+            >
+
+
+            <input
+                type="tel"
+                id="phone"
+                name="phone"
+                placeholder="Phone Number"
+                autocomplete="tel"
+                required
+            >
+
+
+            <input
+                type="text"
+                id="nationality"
+                name="nationality"
+                placeholder="Nationality"
+                autocomplete="country-name"
+                required
+            >
+
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Password"
+                autocomplete="new-password"
+                minlength="6"
+                required
+            >
+
+
+            <button type="submit">
+                Create Account
+            </button>
+
+
+        </form>
+
+
+        <div class="register-link">
+
+            Already have an account?
+
+            <a href="login.html">
+                Login
+            </a>
+
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+<!-- Supabase Library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Supabase Configuration -->
+<script src="supabase.js"></script>
+
+<!-- Customer Registration -->
+<script src="register.js"></script>
+
+
+</body>
+
+</html>
