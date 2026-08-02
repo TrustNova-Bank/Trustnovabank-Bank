@@ -1,6 +1,7 @@
 /* =====================================
    TRUSTNOVA BANK
    CUSTOMER PROFILE
+   SUPABASE AUTHENTICATION
 ===================================== */
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -8,19 +9,44 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadProfile();
 
     const updateButton =
-        document.getElementById("updateProfile");
+        document.getElementById("updateProfileButton");
+
+    const logoutButton =
+        document.getElementById("logoutButton");
+
+
+    /* ===============================
+       UPDATE PROFILE BUTTON
+    =============================== */
 
     if (updateButton) {
+
         updateButton.addEventListener(
             "click",
             updateProfile
         );
+
     }
+
+
+    /* ===============================
+       LOGOUT BUTTON
+    =============================== */
+
+    if (logoutButton) {
+
+        logoutButton.addEventListener(
+            "click",
+            logout
+        );
+
+    }
+
 });
 
 
 /* =====================================
-   LOAD PROFILE
+   LOAD CUSTOMER PROFILE
 ===================================== */
 
 async function loadProfile() {
@@ -32,78 +58,187 @@ async function loadProfile() {
             error: userError
         } = await supabase.auth.getUser();
 
-        if (userError || !userData?.user) {
-            window.location.href = "login.html";
+
+        /* ===============================
+           CHECK AUTHENTICATION
+        =============================== */
+
+        if (
+            userError ||
+            !userData?.user
+        ) {
+
+            window.location.href =
+                "login.html";
+
             return;
+
         }
 
-        const authUser = userData.user;
 
+        const authUser =
+            userData.user;
+
+
+        /* ===============================
+           LOAD CUSTOMER PROFILE
+        =============================== */
 
         const {
             data: profile,
             error: profileError
         } = await supabase
+
             .from("users")
+
             .select("*")
-            .eq("auth_user_id", authUser.id)
+
+            .eq(
+                "auth_user_id",
+                authUser.id
+            )
+
             .maybeSingle();
 
 
         if (profileError) {
+
             console.error(
-                "Profile error:",
+                "Profile loading error:",
                 profileError
             );
 
-            alert("Unable to load your profile.");
+            alert(
+                "Unable to load your profile."
+            );
+
             return;
+
         }
 
 
         if (!profile) {
-            alert("Customer profile not found.");
+
+            alert(
+                "Customer profile not found."
+            );
+
             return;
+
         }
 
 
-        setValue(
-            "first_name",
-            profile.first_name
+        /* ===============================
+           DISPLAY PROFILE
+        =============================== */
+
+        setText(
+            "profile_name",
+            `${profile.first_name || ""} ${profile.last_name || ""}`.trim()
         );
 
-        setValue(
-            "last_name",
-            profile.last_name
+
+        setText(
+            "profile_email",
+            profile.email || authUser.email || "Not available"
         );
 
-        setValue(
-            "email",
-            profile.email
+
+        setText(
+            "profile_first_name",
+            profile.first_name || "Not provided"
         );
 
-        setValue(
-            "phone",
-            profile.phone
+
+        setText(
+            "profile_last_name",
+            profile.last_name || "Not provided"
         );
 
-        setValue(
-            "nationality",
-            profile.nationality
+
+        setText(
+            "profile_email_value",
+            profile.email || authUser.email || "Not available"
         );
 
+
+        setText(
+            "profile_phone",
+            profile.phone || "Not provided"
+        );
+
+
+        setText(
+            "profile_nationality",
+            profile.nationality || "Not provided"
+        );
+
+
+        setText(
+            "profile_status",
+            profile.status || "Active"
+        );
+
+
+        /* ===============================
+           CUSTOMER ID
+        =============================== */
+
+        setText(
+            "profile_customer_id",
+            profile.user_id || "Not available"
+        );
+
+
+        /* ===============================
+           CREATED DATE
+        =============================== */
+
+        if (profile.created_at) {
+
+            const createdDate =
+                new Date(profile.created_at);
+
+            setText(
+                "profile_created_at",
+                createdDate.toLocaleDateString(
+                    "en-US",
+                    {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric"
+                    }
+                )
+            );
+
+        } else {
+
+            setText(
+                "profile_created_at",
+                "Not available"
+            );
+
+        }
+
+
+        /* ===============================
+           PROFILE PHOTO
+        =============================== */
 
         const photo =
             document.getElementById(
-                "profile_photo"
+                "user_photo"
             );
+
 
         if (
             photo &&
             profile.profile_photo
         ) {
+
             photo.src =
                 profile.profile_photo;
+
         }
 
     }
@@ -116,25 +251,31 @@ async function loadProfile() {
         );
 
         alert(
-            "Unable to load profile."
+            "Unable to load your profile."
         );
+
     }
+
 }
 
 
 /* =====================================
-   SET INPUT VALUE
+   SET TEXT CONTENT
 ===================================== */
 
-function setValue(id, value) {
+function setText(id, value) {
 
     const element =
         document.getElementById(id);
 
+
     if (element) {
-        element.value =
-            value || "";
+
+        element.textContent =
+            value ?? "";
+
     }
+
 }
 
 
@@ -156,10 +297,12 @@ async function updateProfile() {
             userError ||
             !userData?.user
         ) {
+
             window.location.href =
                 "login.html";
 
             return;
+
         }
 
 
@@ -167,104 +310,35 @@ async function updateProfile() {
             userData.user;
 
 
-        const first_name =
-            getValue("first_name");
-
-        const last_name =
-            getValue("last_name");
-
-        const phone =
-            getValue("phone");
-
-        const nationality =
-            getValue("nationality");
-
-
-        if (!first_name || !last_name) {
-
-            alert(
-                "First name and last name are required."
-            );
-
-            return;
-        }
-
-
-        const {
-            error: updateError
-        } = await supabase
-            .from("users")
-            .update({
-
-                first_name:
-                    first_name,
-
-                last_name:
-                    last_name,
-
-                phone:
-                    phone,
-
-                nationality:
-                    nationality
-
-            })
-            .eq(
-                "auth_user_id",
-                authUser.id
-            );
-
-
-        if (updateError) {
-
-            console.error(
-                "Profile update error:",
-                updateError
-            );
-
-            alert(
-                updateError.message
-            );
-
-            return;
-        }
-
+        /*
+         * The current profile page is
+         * display-only, so we don't
+         * pretend that the displayed
+         * fields are editable.
+         *
+         * A proper edit-profile form
+         * can be added separately.
+         */
 
         alert(
-            "Profile updated successfully."
+            "Profile editing will be available from the account settings."
         );
-
-
-        await loadProfile();
 
     }
 
     catch (error) {
 
         console.error(
-            "Unexpected update error:",
+            "Profile update error:",
             error
         );
 
         alert(
             "Unable to update your profile."
         );
+
     }
-}
 
-
-/* =====================================
-   GET INPUT VALUE
-===================================== */
-
-function getValue(id) {
-
-    const element =
-        document.getElementById(id);
-
-    return element
-        ? element.value.trim()
-        : "";
 }
 
 
@@ -274,10 +348,44 @@ function getValue(id) {
 
 async function logout() {
 
-    await supabase.auth.signOut();
+    try {
 
-    localStorage.removeItem("user");
+        const {
+            error
+        } =
+            await supabase.auth.signOut();
 
-    window.location.href =
-        "login.html";
+
+        if (error) {
+
+            console.error(
+                "Logout error:",
+                error
+            );
+
+        }
+
+
+        localStorage.removeItem(
+            "user"
+        );
+
+
+        window.location.href =
+            "login.html";
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Unexpected logout error:",
+            error
+        );
+
+        window.location.href =
+            "login.html";
+
+    }
+
 }
