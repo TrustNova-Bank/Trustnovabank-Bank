@@ -12,66 +12,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    displayAdmin(admin);
+    await loadDashboardStats();
 
-    await loadDashboardStatistics();
+    await loadRecentTransactions();
 
-    const logoutButton =
-        document.getElementById("logoutButton");
-
-    if (logoutButton) {
-
-        logoutButton.addEventListener(
-            "click",
-            adminLogout
-        );
-
-    }
+    setupLogout();
 
 });
-
-
-/* =====================================
-   DISPLAY ADMIN
-===================================== */
-
-function displayAdmin(admin) {
-
-    const name =
-        admin.name ||
-        admin.email ||
-        "Administrator";
-
-    setText(
-        "admin_name",
-        name
-    );
-
-    setText(
-        "admin_email",
-        admin.email || "Not available"
-    );
-
-    setText(
-        "admin_role",
-        admin.role ||
-        "Administrator"
-    );
-
-}
 
 
 /* =====================================
    LOAD DASHBOARD STATISTICS
 ===================================== */
 
-async function loadDashboardStatistics() {
+async function loadDashboardStats() {
 
     try {
 
-        /* ===============================
-           TOTAL CUSTOMERS
-        =============================== */
+        /* =====================================
+           TOTAL USERS
+        ===================================== */
 
         const {
             count: userCount,
@@ -79,28 +39,21 @@ async function loadDashboardStatistics() {
         } = await supabase
             .from("users")
             .select(
-                "user_id",
+                "*",
                 {
                     count: "exact",
                     head: true
                 }
             );
 
-
         if (userError) {
             throw userError;
         }
 
 
-        setText(
-            "total_users",
-            userCount ?? 0
-        );
-
-
-        /* ===============================
+        /* =====================================
            TOTAL ACCOUNTS
-        =============================== */
+        ===================================== */
 
         const {
             count: accountCount,
@@ -108,28 +61,21 @@ async function loadDashboardStatistics() {
         } = await supabase
             .from("accounts")
             .select(
-                "account_id",
+                "*",
                 {
                     count: "exact",
                     head: true
                 }
             );
 
-
         if (accountError) {
             throw accountError;
         }
 
 
-        setText(
-            "total_accounts",
-            accountCount ?? 0
-        );
-
-
-        /* ===============================
+        /* =====================================
            TOTAL TRANSACTIONS
-        =============================== */
+        ===================================== */
 
         const {
             count: transactionCount,
@@ -137,28 +83,21 @@ async function loadDashboardStatistics() {
         } = await supabase
             .from("transactions")
             .select(
-                "transaction_id",
+                "*",
                 {
                     count: "exact",
                     head: true
                 }
             );
 
-
         if (transactionError) {
             throw transactionError;
         }
 
 
-        setText(
-            "total_transactions",
-            transactionCount ?? 0
-        );
-
-
-        /* ===============================
-           SUPPORT TICKETS
-        =============================== */
+        /* =====================================
+           TOTAL SUPPORT TICKETS
+        ===================================== */
 
         const {
             count: ticketCount,
@@ -166,24 +105,44 @@ async function loadDashboardStatistics() {
         } = await supabase
             .from("support_tickets")
             .select(
-                "ticket_id",
+                "*",
                 {
                     count: "exact",
                     head: true
                 }
             );
 
-
         if (ticketError) {
             throw ticketError;
         }
 
 
+        /* =====================================
+           DISPLAY COUNTS
+        ===================================== */
+
         setText(
-            "total_tickets",
-            ticketCount ?? 0
+            "totalUsers",
+            userCount || 0
         );
 
+
+        setText(
+            "totalAccounts",
+            accountCount || 0
+        );
+
+
+        setText(
+            "totalTransactions",
+            transactionCount || 0
+        );
+
+
+        setText(
+            "totalTickets",
+            ticketCount || 0
+        );
 
     }
 
@@ -194,28 +153,234 @@ async function loadDashboardStatistics() {
             error
         );
 
-
         setText(
-            "total_users",
+            "totalUsers",
             "—"
         );
 
         setText(
-            "total_accounts",
+            "totalAccounts",
             "—"
         );
 
         setText(
-            "total_transactions",
+            "totalTransactions",
             "—"
         );
 
         setText(
-            "total_tickets",
+            "totalTickets",
             "—"
         );
 
     }
+
+}
+
+
+/* =====================================
+   LOAD RECENT TRANSACTIONS
+===================================== */
+
+async function loadRecentTransactions() {
+
+    const table =
+        document.getElementById(
+            "transactionList"
+        );
+
+    if (!table) {
+        return;
+    }
+
+
+    table.innerHTML = `
+        <tr>
+            <td colspan="5">
+                Loading transactions...
+            </td>
+        </tr>
+    `;
+
+
+    try {
+
+        const {
+            data: transactions,
+            error
+        } = await supabase
+            .from("transactions")
+            .select("*")
+            .order(
+                "transaction_date",
+                {
+                    ascending: false
+                }
+            )
+            .limit(5);
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        table.innerHTML = "";
+
+
+        if (
+            !transactions ||
+            transactions.length === 0
+        ) {
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        No transactions found.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+
+        transactions.forEach(
+            transaction => {
+
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                const date =
+                    formatDate(
+                        transaction.transaction_date
+                    );
+
+
+                const description =
+                    transaction.description ||
+                    "Bank transaction";
+
+
+                const type =
+                    transaction.transaction_type ||
+                    "Transaction";
+
+
+                const amount =
+                    formatMoney(
+                        transaction.amount,
+                        transaction.currency
+                    );
+
+
+                const status =
+                    transaction.status ||
+                    "Pending";
+
+
+                row.innerHTML = `
+
+                    <td>
+                        ${escapeHTML(date)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            description
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(type)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(amount)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(status)}
+                    </td>
+
+                `;
+
+
+                table.appendChild(
+                    row
+                );
+
+            }
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Recent transactions error:",
+            error
+        );
+
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    Unable to load recent transactions.
+                </td>
+            </tr>
+        `;
+
+    }
+
+}
+
+
+/* =====================================
+   LOGOUT
+===================================== */
+
+function setupLogout() {
+
+    const logoutButton =
+        document.getElementById(
+            "logoutButton"
+        );
+
+
+    if (!logoutButton) {
+        return;
+    }
+
+
+    logoutButton.addEventListener(
+        "click",
+        async () => {
+
+            try {
+
+                await supabase.auth.signOut();
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Admin logout error:",
+                    error
+                );
+
+            }
+
+
+            window.location.href =
+                "admin-login.html";
+
+        }
+    );
 
 }
 
@@ -241,5 +406,123 @@ function setText(
             value ?? "";
 
     }
+
+}
+
+
+/* =====================================
+   FORMAT MONEY
+===================================== */
+
+function formatMoney(
+    amount,
+    currency = "USD"
+) {
+
+    const value =
+        Number(amount) || 0;
+
+
+    const currencyCode =
+        String(
+            currency || "USD"
+        ).toUpperCase();
+
+
+    try {
+
+        return new Intl.NumberFormat(
+            "en-US",
+            {
+                style: "currency",
+                currency: currencyCode
+            }
+        ).format(
+            value
+        );
+
+    }
+
+    catch (error) {
+
+        return (
+            value.toFixed(2) +
+            " " +
+            currencyCode
+        );
+
+    }
+
+}
+
+
+/* =====================================
+   FORMAT DATE
+===================================== */
+
+function formatDate(
+    value
+) {
+
+    if (!value) {
+        return "—";
+    }
+
+
+    const date =
+        new Date(value);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return "—";
+    }
+
+
+    return date.toLocaleDateString(
+        "en-US",
+        {
+            year: "numeric",
+            month: "short",
+            day: "numeric"
+        }
+    );
+
+}
+
+
+/* =====================================
+   HTML ESCAPING
+===================================== */
+
+function escapeHTML(
+    value
+) {
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
