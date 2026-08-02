@@ -1,7 +1,7 @@
 /* =====================================
    TRUSTNOVA BANK
    CUSTOMER LOGIN
-   SUPABASE AUTH + CUSTOMER PROFILE
+   SUPABASE AUTHENTICATION
 ===================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -15,99 +15,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    loginForm.addEventListener("submit", async (event) => {
+    loginForm.addEventListener(
+        "submit",
+        async (event) => {
 
-        event.preventDefault();
+            event.preventDefault();
 
-
-        const emailElement =
-            document.getElementById("email");
-
-        const passwordElement =
-            document.getElementById("password");
-
-
-        if (!emailElement || !passwordElement) {
-
-            alert(
-                "Login form fields are missing."
-            );
-
-            return;
-        }
-
-
-        const email =
-            emailElement.value
-                .trim()
-                .toLowerCase();
-
-        const password =
-            passwordElement.value;
-
-
-        if (!email || !password) {
-
-            alert(
-                "Please enter your email and password."
-            );
-
-            return;
-        }
-
-
-        const submitButton =
-            loginForm.querySelector(
-                'button[type="submit"]'
-            );
-
-
-        if (submitButton) {
-            submitButton.disabled = true;
-        }
-
-
-        try {
 
             /* =====================================
-               1. SUPABASE AUTHENTICATION
+               FORM ELEMENTS
             ===================================== */
 
-            const {
-                data: authData,
-                error: authError
-            } = await supabase.auth.signInWithPassword({
+            const emailElement =
+                document.getElementById("email");
 
-                email: email,
+            const passwordElement =
+                document.getElementById("password");
 
-                password: password
-
-            });
-
-
-            if (authError) {
-
-                console.error(
-                    "Supabase login error:",
-                    authError
+            const submitButton =
+                loginForm.querySelector(
+                    'button[type="submit"]'
                 );
 
-                alert(
-                    "Invalid email or password."
-                );
 
-                return;
-            }
-
-
-            const authUser =
-                authData?.user;
-
-
-            if (!authUser) {
+            if (
+                !emailElement ||
+                !passwordElement
+            ) {
 
                 alert(
-                    "Login could not be completed."
+                    "Login form is not configured correctly."
                 );
 
                 return;
@@ -115,97 +52,208 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             /* =====================================
-               2. LOAD CUSTOMER PROFILE
+               GET VALUES
             ===================================== */
 
-            const {
-                data: profile,
-                error: profileError
-            } = await supabase
-                .from("users")
-                .select("*")
-                .eq("auth_user_id", authUser.id)
-                .maybeSingle();
+            const email =
+                emailElement.value
+                    .trim()
+                    .toLowerCase();
+
+            const password =
+                passwordElement.value;
 
 
-            if (profileError) {
+            /* =====================================
+               VALIDATION
+            ===================================== */
 
-                console.error(
-                    "Customer profile error:",
-                    profileError
-                );
-
-                await supabase.auth.signOut();
+            if (!email) {
 
                 alert(
-                    "Your account was authenticated, but your customer profile could not be loaded."
+                    "Please enter your email address."
                 );
+
+                emailElement.focus();
 
                 return;
             }
 
 
-            if (!profile) {
-
-                await supabase.auth.signOut();
+            if (!password) {
 
                 alert(
-                    "Customer profile not found. Please contact support."
+                    "Please enter your password."
                 );
+
+                passwordElement.focus();
 
                 return;
             }
 
 
             /* =====================================
-               3. SAVE CUSTOMER PROFILE
-               
-               Password is NEVER stored here.
+               DISABLE LOGIN BUTTON
             ===================================== */
-
-            localStorage.setItem(
-                "user",
-                JSON.stringify(profile)
-            );
-
-
-            /* =====================================
-               4. LOGIN SUCCESS
-            ===================================== */
-
-            alert(
-                "Login successful!"
-            );
-
-
-            window.location.href =
-                "dashboard.html";
-
-        }
-
-
-        catch (error) {
-
-            console.error(
-                "Unexpected login error:",
-                error
-            );
-
-            alert(
-                "Login failed. Please try again."
-            );
-
-        }
-
-
-        finally {
 
             if (submitButton) {
-                submitButton.disabled = false;
+
+                submitButton.disabled = true;
+
+                submitButton.textContent =
+                    "Signing in...";
+
+            }
+
+
+            try {
+
+                /* =====================================
+                   1. SUPABASE AUTHENTICATION
+                ===================================== */
+
+                const {
+                    data: authData,
+                    error: authError
+                } =
+                    await supabase.auth
+                        .signInWithPassword({
+
+                            email: email,
+
+                            password: password
+
+                        });
+
+
+                if (authError) {
+
+                    console.error(
+                        "Supabase authentication error:",
+                        authError
+                    );
+
+                    alert(
+                        "Invalid email or password."
+                    );
+
+                    return;
+                }
+
+
+                const authUser =
+                    authData?.user;
+
+
+                if (!authUser) {
+
+                    alert(
+                        "Login could not be completed."
+                    );
+
+                    return;
+                }
+
+
+                /* =====================================
+                   2. LOAD CUSTOMER PROFILE
+                ===================================== */
+
+                const {
+                    data: profile,
+                    error: profileError
+                } =
+                    await supabase
+                        .from("users")
+                        .select("*")
+                        .eq(
+                            "auth_user_id",
+                            authUser.id
+                        )
+                        .maybeSingle();
+
+
+                if (profileError) {
+
+                    console.error(
+                        "Customer profile error:",
+                        profileError
+                    );
+
+                    await supabase.auth.signOut();
+
+                    alert(
+                        "Your account was authenticated, but your customer profile could not be loaded."
+                    );
+
+                    return;
+                }
+
+
+                /* =====================================
+                   3. PROFILE NOT FOUND
+                ===================================== */
+
+                if (!profile) {
+
+                    await supabase.auth.signOut();
+
+                    alert(
+                        "Customer profile not found. Please contact support."
+                    );
+
+                    return;
+                }
+
+
+                /* =====================================
+                   4. SAVE NON-SENSITIVE PROFILE DATA
+                ===================================== */
+
+                localStorage.setItem(
+                    "user",
+                    JSON.stringify(profile)
+                );
+
+
+                /* =====================================
+                   5. REDIRECT
+                ===================================== */
+
+                window.location.href =
+                    "dashboard.html";
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "Unexpected login error:",
+                    error
+                );
+
+                alert(
+                    "Unable to complete login. Please try again."
+                );
+
+            }
+
+
+            finally {
+
+                if (submitButton) {
+
+                    submitButton.disabled = false;
+
+                    submitButton.textContent =
+                        "Login";
+
+                }
+
             }
 
         }
-
-    });
+    );
 
 });
