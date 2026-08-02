@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Create Payment | TrustNova Bank Admin</title>
+
+    <link
+        rel="stylesheet"
+        href="css/admin.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================
+     ADMIN HEADER
+===================================== -->
+
+<header class="admin-header">
+
+    <div class="admin-brand">
+
+        <img
+            src="images/logo.png"
+            alt="TrustNova Bank"
+            class="admin-logo"
+        >
+
+        <div>
+
+            <h1>
+                TrustNova Bank
+            </h1>
+
+            <span>
+                Administration
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <button
+        type="button"
+        id="logoutButton"
+        class="logout-button"
+    >
+        Logout
+    </button>
+
+</header>
+
+
+
+<!-- =====================================
+     ADMIN NAVIGATION
+===================================== -->
+
+<nav class="admin-nav">
+
+    <a href="Admin.html">
+        Dashboard
+    </a>
+
+    <a href="Admin-users.html">
+        Customers
+    </a>
+
+    <a href="Admin-account.html">
+        Accounts
+    </a>
+
+    <a href="Admin-transactions.html">
+        Transactions
+    </a>
+
+    <a href="open-accounts.html">
+        Open Account
+    </a>
+
+    <a
+        href="payment.html"
+        class="active"
+    >
+        Payments
+    </a>
+
+</nav>
+
+
+
+<!-- =====================================
+     MAIN CONTENT
+===================================== -->
+
+<main class="admin-container">
+
+
+    <section class="admin-page-header">
+
+        <div>
+
+            <h2>
+                Payment Management
+            </h2>
+
+            <p>
+                Create a payment transaction for an active customer account.
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================
+         PAYMENT FORM
+    ===================================== -->
+
+    <section class="admin-card">
+
+
+        <form
+            id="paymentForm"
+            class="admin-form"
+        >
+
+
+            <!-- ACCOUNT -->
+
+            <div class="form-group">
+
+                <label for="account_id">
+                    Customer Account
+                </label>
+
+                <select
+                    id="account_id"
+                    name="account_id"
+                    required
+                >
+
+                    <option value="">
+                        Loading accounts...
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- AMOUNT -->
+
+            <div class="form-group">
+
+                <label for="amount">
+                    Payment Amount
+                </label>
+
+                <input
+                    type="number"
+                    id="amount"
+                    name="amount"
+                    placeholder="0.00"
+                    min="0.01"
+                    step="0.01"
+                    required
+                >
+
+            </div>
+
+
+
+            <!-- TRANSACTION TYPE -->
+
+            <div class="form-group">
+
+                <label for="transaction_type">
+                    Transaction Type
+                </label>
+
+                <select
+                    id="transaction_type"
+                    name="transaction_type"
+                    required
+                >
+
+                    <option value="">
+                        Select Transaction Type
+                    </option>
+
+                    <option value="Payment">
+                        Payment
+                    </option>
+
+                    <option value="Bill Payment">
+                        Bill Payment
+                    </option>
+
+                    <option value="Transfer">
+                        Transfer
+                    </option>
+
+                    <option value="Service Payment">
+                        Service Payment
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- CURRENCY -->
+
+            <div class="form-group">
+
+                <label for="currency">
+                    Currency
+                </label>
+
+                <select
+                    id="currency"
+                    name="currency"
+                    required
+                >
+
+                    <option value="USD">
+                        USD — US Dollar
+                    </option>
+
+                    <option value="NGN">
+                        NGN — Nigerian Naira
+                    </option>
+
+                    <option value="EUR">
+                        EUR — Euro
+                    </option>
+
+                    <option value="GBP">
+                        GBP — British Pound
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- DESCRIPTION -->
+
+            <div class="form-group">
+
+                <label for="description">
+                    Payment Description
+                </label>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="4"
+                    placeholder="Enter payment description"
+                    required
+                ></textarea>
+
+            </div>
+
+
+
+            <!-- STATUS INFORMATION -->
+
+            <div class="payment-notice">
+
+                <strong>
+                    Payment Status
+                </strong>
+
+                <p>
+                    New payment requests are created with
+                    <strong>Pending</strong> status.
+                </p>
+
+            </div>
+
+
+
+            <!-- ACTIONS -->
+
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Create Payment
+                </button>
+
+
+                <button
+                    type="reset"
+                    class="secondary-button"
+                >
+                    Clear
+                </button>
+
+            </div>
+
+
+        </form>
+
+
+    </section>
+
+
+</main>
+
+
+
+<!-- =====================================
+     JAVASCRIPT
+===================================== -->
+
+<!-- Supabase -->
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<!-- Admin Supabase Configuration -->
+<script src="js/supabase.js"></script>
+
+
+<!-- Admin Authentication -->
+<script src="js/admin-auth.js"></script>
+
+
+<!-- Payment Management -->
+<script src="js/payment.js"></script>
+
+
+</body>
+
+</html>
