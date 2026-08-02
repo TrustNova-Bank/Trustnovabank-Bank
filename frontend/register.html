@@ -14,7 +14,7 @@
 
     <link
         rel="stylesheet"
-        href="style.css"
+        href="css/style.css"
     >
 
 </head>
@@ -36,7 +36,10 @@
         >
 
 
-        <h1>Create Account</h1>
+        <h1>
+            Create Account
+        </h1>
+
 
         <p>
             Join TrustNova Bank today
@@ -46,65 +49,113 @@
         <form id="registerForm">
 
 
-            <input
-                type="text"
-                id="first_name"
-                name="first_name"
-                placeholder="First Name"
-                autocomplete="given-name"
-                required
-            >
+            <div class="input-group">
+
+                <label for="first_name">
+                    First Name
+                </label>
+
+                <input
+                    type="text"
+                    id="first_name"
+                    name="first_name"
+                    placeholder="First Name"
+                    autocomplete="given-name"
+                    required
+                >
+
+            </div>
 
 
-            <input
-                type="text"
-                id="last_name"
-                name="last_name"
-                placeholder="Last Name"
-                autocomplete="family-name"
-                required
-            >
+            <div class="input-group">
+
+                <label for="last_name">
+                    Last Name
+                </label>
+
+                <input
+                    type="text"
+                    id="last_name"
+                    name="last_name"
+                    placeholder="Last Name"
+                    autocomplete="family-name"
+                    required
+                >
+
+            </div>
 
 
-            <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="Email Address"
-                autocomplete="email"
-                required
-            >
+            <div class="input-group">
+
+                <label for="email">
+                    Email Address
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Email Address"
+                    autocomplete="email"
+                    required
+                >
+
+            </div>
 
 
-            <input
-                type="tel"
-                id="phone"
-                name="phone"
-                placeholder="Phone Number"
-                autocomplete="tel"
-                required
-            >
+            <div class="input-group">
+
+                <label for="phone">
+                    Phone Number
+                </label>
+
+                <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    placeholder="Phone Number"
+                    autocomplete="tel"
+                    required
+                >
+
+            </div>
 
 
-            <input
-                type="text"
-                id="nationality"
-                name="nationality"
-                placeholder="Nationality"
-                autocomplete="country-name"
-                required
-            >
+            <div class="input-group">
+
+                <label for="nationality">
+                    Nationality
+                </label>
+
+                <input
+                    type="text"
+                    id="nationality"
+                    name="nationality"
+                    placeholder="Nationality"
+                    autocomplete="country-name"
+                    required
+                >
+
+            </div>
 
 
-            <input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Password"
-                autocomplete="new-password"
-                minlength="6"
-                required
-            >
+            <div class="input-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Password"
+                    autocomplete="new-password"
+                    minlength="6"
+                    required
+                >
+
+            </div>
 
 
             <button type="submit">
@@ -126,20 +177,30 @@
         </div>
 
 
+        <div class="back-home">
+
+            <a href="index.html">
+                ← Back to Home
+            </a>
+
+        </div>
+
+
     </div>
 
 
 </section>
 
 
-<!-- Supabase Library -->
+<!-- =====================================
+     JAVASCRIPT
+===================================== -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- Supabase Configuration -->
-<script src="supabase.js"></script>
+<script src="js/supabase.js"></script>
 
-<!-- Customer Registration -->
-<script src="register.js"></script>
+<script src="js/register.js"></script>
 
 
 </body>
