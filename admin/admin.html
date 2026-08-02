@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin Dashboard | TrustNova Bank</title>
+
+    <!-- Admin CSS -->
+    <link
+        rel="stylesheet"
+        href="css/admin.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<div class="admin-container">
+
+
+    <!-- =====================================
+         SIDEBAR
+    ====================================== -->
+
+    <aside class="admin-sidebar">
+
+
+        <div class="admin-logo">
+
+            <img
+                src="../frontend/images/logo.png"
+                alt="TrustNova Bank"
+            >
+
+            <h2>
+                TrustNova Bank
+            </h2>
+
+            <p>
+                Administration
+            </p>
+
+        </div>
+
+
+        <nav class="admin-nav">
+
+
+            <a
+                href="admin.html"
+                class="active"
+            >
+                Dashboard
+            </a>
+
+
+            <a href="admin-users.html">
+                Users
+            </a>
+
+
+            <a href="admin-accounts.html">
+                Accounts
+            </a>
+
+
+            <a href="open-accounts.html">
+                Open Accounts
+            </a>
+
+
+            <a href="admin-transactions.html">
+                Transactions
+            </a>
+
+
+            <a href="payment.html">
+                Payments
+            </a>
+
+
+            <a href="user-dashboard.html">
+                Customer Dashboard
+            </a>
+
+
+            <a href="admin-login.html">
+                Logout
+            </a>
+
+
+        </nav>
+
+
+    </aside>
+
+
+
+    <!-- =====================================
+         MAIN CONTENT
+    ====================================== -->
+
+    <main class="admin-main">
+
+
+        <!-- Header -->
+
+        <header class="admin-header">
+
+            <div>
+
+                <h1>
+                    Admin Dashboard
+                </h1>
+
+                <p>
+                    Welcome to TrustNova Bank Administration
+                </p>
+
+            </div>
+
+
+            <button
+                id="logoutButton"
+                class="admin-button admin-button-danger"
+                type="button"
+            >
+                Logout
+            </button>
+
+        </header>
+
+
+
+        <!-- =====================================
+             DASHBOARD CARDS
+        ====================================== -->
+
+        <section class="admin-cards">
+
+
+            <div class="admin-card">
+
+                <h3>
+                    Total Users
+                </h3>
+
+                <div
+                    class="value"
+                    id="totalUsers"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+
+            <div class="admin-card">
+
+                <h3>
+                    Total Accounts
+                </h3>
+
+                <div
+                    class="value"
+                    id="totalAccounts"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+
+            <div class="admin-card">
+
+                <h3>
+                    Total Transactions
+                </h3>
+
+                <div
+                    class="value"
+                    id="totalTransactions"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+
+            <div class="admin-card">
+
+                <h3>
+                    Support Tickets
+                </h3>
+
+                <div
+                    class="value"
+                    id="totalTickets"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =====================================
+             RECENT ACTIVITY
+        ====================================== -->
+
+        <section class="admin-section">
+
+
+            <h2>
+                Recent Transactions
+            </h2>
+
+
+            <div class="admin-table-wrapper">
+
+
+                <table class="admin-table">
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Description
+                            </th>
+
+                            <th>
+                                Type
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="transactionList">
+
+
+                        <tr>
+
+                            <td colspan="5">
+                                Loading transactions...
+                            </td>
+
+                        </tr>
+
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =====================================
+             QUICK ACTIONS
+        ====================================== -->
+
+        <section class="admin-section">
+
+
+            <h2>
+                Quick Actions
+            </h2>
+
+
+            <div class="admin-cards">
+
+
+                <div class="admin-card">
+
+                    <h3>
+                        User Management
+                    </h3>
+
+                    <a
+                        href="admin-users.html"
+                        class="admin-button admin-button-primary"
+                    >
+                        Manage Users
+                    </a>
+
+                </div>
+
+
+
+                <div class="admin-card">
+
+                    <h3>
+                        Account Management
+                    </h3>
+
+                    <a
+                        href="admin-accounts.html"
+                        class="admin-button admin-button-primary"
+                    >
+                        Manage Accounts
+                    </a>
+
+                </div>
+
+
+
+                <div class="admin-card">
+
+                    <h3>
+                        Open Account
+                    </h3>
+
+                    <a
+                        href="open-accounts.html"
+                        class="admin-button admin-button-success"
+                    >
+                        Open Account
+                    </a>
+
+                </div>
+
+
+
+                <div class="admin-card">
+
+                    <h3>
+                        Transactions
+                    </h3>
+
+                    <a
+                        href="admin-transactions.html"
+                        class="admin-button admin-button-primary"
+                    >
+                        View Transactions
+                    </a>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+
+<!-- =====================================
+     SUPABASE
+====================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<!-- =====================================
+     SUPABASE CONFIGURATION
+====================================== -->
+
+<script src="js/supabase.js"></script>
+
+
+<!-- =====================================
+     ADMIN DASHBOARD
+====================================== -->
+
+<script src="js/admin-dashboard.js"></script>
+
+
+<!-- =====================================
+     ADMIN AUTHENTICATION
+====================================== -->
+
+<script src="js/admin-auth.js"></script>
+
+
+</body>
+
+</html>
