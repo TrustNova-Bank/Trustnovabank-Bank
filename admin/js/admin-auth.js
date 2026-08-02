@@ -4,252 +4,195 @@
    SUPABASE
 ===================================== */
 
-document.addEventListener("DOMContentLoaded", () => {
 
-    const adminLoginForm =
-        document.getElementById("adminLoginForm");
+/* =====================================
+   REQUIRE ADMIN AUTHENTICATION
+===================================== */
 
-    if (!adminLoginForm) {
-        console.error("adminLoginForm was not found.");
-        return;
+async function requireAdminAuth() {
+
+    try {
+
+        /* Check Supabase session */
+
+        const {
+            data: sessionData,
+            error: sessionError
+        } = await supabase.auth.getSession();
+
+
+        if (
+            sessionError ||
+            !sessionData?.session
+        ) {
+
+            redirectToAdminLogin();
+
+            return null;
+        }
+
+
+        const authUser =
+            sessionData.session.user;
+
+
+        if (!authUser) {
+
+            redirectToAdminLogin();
+
+            return null;
+        }
+
+
+        /* =====================================
+           CHECK ADMIN RECORD
+        ===================================== */
+
+        const {
+            data: admin,
+            error: adminError
+        } = await supabase
+            .from("admins")
+            .select("*")
+            .eq(
+                "auth_user_id",
+                authUser.id
+            )
+            .maybeSingle();
+
+
+        if (adminError) {
+
+            console.error(
+                "Admin authentication error:",
+                adminError
+            );
+
+            redirectToAdminLogin();
+
+            return null;
+        }
+
+
+        if (!admin) {
+
+            console.error(
+                "Authenticated user is not an administrator."
+            );
+
+            await supabase.auth.signOut();
+
+            redirectToAdminLogin();
+
+            return null;
+        }
+
+
+        /* =====================================
+           CHECK ADMIN STATUS
+        ===================================== */
+
+        if (
+            admin.status &&
+            String(admin.status).toLowerCase() !== "active"
+        ) {
+
+            alert(
+                "Your administrator account is not active."
+            );
+
+            await supabase.auth.signOut();
+
+            redirectToAdminLogin();
+
+            return null;
+        }
+
+
+        /* =====================================
+           SAVE SAFE ADMIN INFORMATION
+        ===================================== */
+
+        localStorage.setItem(
+            "admin",
+            JSON.stringify({
+                admin_id: admin.admin_id,
+                email: admin.email,
+                name: admin.name || "",
+                role: admin.role || "Administrator"
+            })
+        );
+
+
+        return admin;
+
     }
 
+    catch (error) {
 
-    adminLoginForm.addEventListener(
-        "submit",
-        async (event) => {
+        console.error(
+            "Unexpected admin authentication error:",
+            error
+        );
 
-            event.preventDefault();
+        redirectToAdminLogin();
 
+        return null;
+    }
+}
 
-            const emailElement =
-                document.getElementById("email");
 
-            const passwordElement =
-                document.getElementById("password");
+/* =====================================
+   ADMIN LOGOUT
+===================================== */
 
+async function adminLogout() {
 
-            if (!emailElement || !passwordElement) {
+    try {
 
-                alert(
-                    "Admin login form is not configured correctly."
-                );
+        await supabase.auth.signOut();
 
-                return;
-            }
+    }
 
+    catch (error) {
 
-            const email =
-                emailElement.value
-                    .trim()
-                    .toLowerCase();
+        console.error(
+            "Admin logout error:",
+            error
+        );
 
-            const password =
-                passwordElement.value;
+    }
 
+    finally {
 
-            if (!email || !password) {
+        localStorage.removeItem(
+            "admin"
+        );
 
-                alert(
-                    "Please enter your email and password."
-                );
+        window.location.href =
+            "admin-login.html";
+    }
+}
 
-                return;
-            }
 
+/* =====================================
+   REDIRECT TO ADMIN LOGIN
+===================================== */
 
-            const submitButton =
-                adminLoginForm.querySelector(
-                    'button[type="submit"]'
-                );
+function redirectToAdminLogin() {
 
+    const currentPage =
+        window.location.pathname
+            .split("/")
+            .pop();
 
-            if (submitButton) {
 
-                submitButton.disabled = true;
+    if (
+        currentPage !==
+        "admin-login.html"
+    ) {
 
-                submitButton.textContent =
-                    "Signing in...";
-
-            }
-
-
-            try {
-
-                /* =====================================
-                   1. SUPABASE AUTHENTICATION
-                ===================================== */
-
-                const {
-                    data: authData,
-                    error: authError
-                } =
-                    await supabase.auth
-                        .signInWithPassword({
-
-                            email: email,
-
-                            password: password
-
-                        });
-
-
-                if (authError) {
-
-                    console.error(
-                        "Admin authentication error:",
-                        authError
-                    );
-
-                    alert(
-                        "Invalid administrator email or password."
-                    );
-
-                    return;
-                }
-
-
-                const authUser =
-                    authData?.user;
-
-
-                if (!authUser) {
-
-                    alert(
-                        "Administrator login could not be completed."
-                    );
-
-                    return;
-                }
-
-
-                /* =====================================
-                   2. CHECK ADMIN PROFILE
-                ===================================== */
-
-                const {
-                    data: admin,
-                    error: adminError
-                } =
-                    await supabase
-                        .from("admins")
-                        .select("*")
-                        .eq(
-                            "auth_user_id",
-                            authUser.id
-                        )
-                        .maybeSingle();
-
-
-                if (adminError) {
-
-                    console.error(
-                        "Admin profile error:",
-                        adminError
-                    );
-
-                    await supabase.auth.signOut();
-
-                    alert(
-                        "Your account was authenticated, but your administrator profile could not be loaded."
-                    );
-
-                    return;
-                }
-
-
-                /* =====================================
-                   3. ADMIN NOT FOUND
-                ===================================== */
-
-                if (!admin) {
-
-                    await supabase.auth.signOut();
-
-                    alert(
-                        "Administrator account not found."
-                    );
-
-                    return;
-                }
-
-
-                /* =====================================
-                   4. CHECK ADMIN STATUS
-                ===================================== */
-
-                if (
-                    admin.status &&
-                    String(admin.status).toLowerCase() !== "active"
-                ) {
-
-                    await supabase.auth.signOut();
-
-                    alert(
-                        "This administrator account is not active."
-                    );
-
-                    return;
-                }
-
-
-                /* =====================================
-                   5. SAVE ADMIN SESSION INFORMATION
-                ===================================== */
-
-                localStorage.setItem(
-                    "admin",
-                    JSON.stringify({
-                        auth_user_id: authUser.id,
-                        admin_id: admin.admin_id,
-                        email: authUser.email
-                    })
-                );
-
-
-                /* =====================================
-                   6. LOGIN SUCCESS
-                ===================================== */
-
-                alert(
-                    "Administrator login successful!"
-                );
-
-
-                window.location.href =
-                    "admin-dashboard.html";
-
-            }
-
-
-            catch (error) {
-
-                console.error(
-                    "Unexpected admin login error:",
-                    error
-                );
-
-                alert(
-                    "Unable to complete administrator login. Please try again."
-                );
-
-            }
-
-
-            finally {
-
-                if (submitButton) {
-
-                    submitButton.disabled = false;
-
-                    submitButton.textContent =
-                        "Login";
-
-                }
-
-            }
-
-        }
-    );
-
-});
+        window.location.href =
+            "admin-login.html";
+    }
+}
