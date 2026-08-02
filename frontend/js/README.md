@@ -1,0 +1,1 @@
+# TrustNova Bank Frontend JavaScript
