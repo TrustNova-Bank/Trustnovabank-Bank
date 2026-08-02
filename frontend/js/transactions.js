@@ -4,14 +4,19 @@
 ===================================== */
 
 document.addEventListener("DOMContentLoaded", async () => {
-    await loadTransactions();
 
     const logoutButton =
         document.getElementById("logoutButton");
 
     if (logoutButton) {
-        logoutButton.addEventListener("click", logout);
+        logoutButton.addEventListener(
+            "click",
+            logout
+        );
     }
+
+    await loadTransactions();
+
 });
 
 
@@ -23,35 +28,102 @@ async function loadTransactions() {
 
     try {
 
-        /* Check authentication */
+        /* ===============================
+           1. CHECK AUTHENTICATION
+        =============================== */
+
         const {
             data: userData,
             error: userError
         } = await supabase.auth.getUser();
 
-        if (userError || !userData?.user) {
-            window.location.href = "login.html";
+
+        if (
+            userError ||
+            !userData?.user
+        ) {
+
+            window.location.href =
+                "login.html";
+
             return;
         }
 
-        const authUser = userData.user;
+
+        const authUser =
+            userData.user;
 
 
-        /* Find customer account */
+        /* ===============================
+           2. LOAD CUSTOMER PROFILE
+        =============================== */
+
+        const {
+            data: profile,
+            error: profileError
+        } = await supabase
+            .from("users")
+            .select("*")
+            .eq(
+                "auth_user_id",
+                authUser.id
+            )
+            .maybeSingle();
+
+
+        if (profileError) {
+
+            console.error(
+                "Profile error:",
+                profileError
+            );
+
+            throw profileError;
+        }
+
+
+        if (!profile) {
+
+            await supabase.auth.signOut();
+
+            window.location.href =
+                "login.html";
+
+            return;
+        }
+
+
+        /* ===============================
+           3. LOAD CUSTOMER ACCOUNT
+        =============================== */
+
         const {
             data: account,
             error: accountError
         } = await supabase
             .from("accounts")
             .select("*")
-            .eq("user_id", authUser.id)
+            .eq(
+                "user_id",
+                profile.user_id
+            )
             .maybeSingle();
 
 
         if (accountError) {
+
+            console.error(
+                "Account error:",
+                accountError
+            );
+
             throw accountError;
         }
 
+
+        /* ===============================
+           4. NO ACCOUNT
+        =============================== */
 
         if (!account) {
 
@@ -61,20 +133,35 @@ async function loadTransactions() {
         }
 
 
-        /* Load transactions */
+        /* ===============================
+           5. LOAD TRANSACTIONS
+        =============================== */
+
         const {
             data: transactions,
             error: transactionError
         } = await supabase
             .from("transactions")
             .select("*")
-            .eq("account_id", account.account_id)
-            .order("transaction_date", {
-                ascending: false
-            });
+            .eq(
+                "account_id",
+                account.account_id
+            )
+            .order(
+                "transaction_date",
+                {
+                    ascending: false
+                }
+            );
 
 
         if (transactionError) {
+
+            console.error(
+                "Transaction error:",
+                transactionError
+            );
+
             throw transactionError;
         }
 
@@ -95,6 +182,7 @@ async function loadTransactions() {
         displayError();
 
     }
+
 }
 
 
@@ -102,7 +190,9 @@ async function loadTransactions() {
    DISPLAY TRANSACTIONS
 ===================================== */
 
-function displayTransactions(transactions) {
+function displayTransactions(
+    transactions
+) {
 
     const table =
         document.getElementById(
@@ -118,15 +208,21 @@ function displayTransactions(transactions) {
     table.innerHTML = "";
 
 
-    /* Update total count */
+    /* ===============================
+       TOTAL TRANSACTIONS
+    =============================== */
+
     const totalElement =
         document.getElementById(
             "totalTransactions"
         );
 
+
     if (totalElement) {
+
         totalElement.textContent =
             transactions.length;
+
     }
 
 
@@ -134,8 +230,13 @@ function displayTransactions(transactions) {
     let totalDebits = 0;
 
 
-    /* No transactions */
-    if (transactions.length === 0) {
+    /* ===============================
+       NO TRANSACTIONS
+    =============================== */
+
+    if (
+        transactions.length === 0
+    ) {
 
         table.innerHTML = `
             <tr>
@@ -145,14 +246,20 @@ function displayTransactions(transactions) {
             </tr>
         `;
 
+
         updateSummary(
             totalCredits,
             totalDebits
         );
 
+
         return;
     }
 
+
+    /* ===============================
+       MONEY FORMAT
+    =============================== */
 
     const money =
         new Intl.NumberFormat(
@@ -164,96 +271,134 @@ function displayTransactions(transactions) {
         );
 
 
-    transactions.forEach(transaction => {
+    /* ===============================
+       BUILD TABLE
+    =============================== */
 
-        const amount =
-            Number(transaction.amount) || 0;
+    transactions.forEach(
+        transaction => {
 
-
-        const type =
-            String(
-                transaction.transaction_type || ""
-            ).toLowerCase();
-
-
-        /*
-         * Determine whether transaction
-         * is a credit or debit.
-         */
-
-        const isCredit =
-            type.includes("deposit") ||
-            type.includes("credit") ||
-            type.includes("received");
+            const amount =
+                Number(
+                    transaction.amount
+                ) || 0;
 
 
-        if (isCredit) {
-            totalCredits += amount;
-        } else {
-            totalDebits += amount;
+            const type =
+                String(
+                    transaction.transaction_type ||
+                    ""
+                ).toLowerCase();
+
+
+            const isCredit =
+                type.includes("deposit") ||
+                type.includes("credit") ||
+                type.includes("received") ||
+                type.includes("refund");
+
+
+            if (isCredit) {
+
+                totalCredits += amount;
+
+            } else {
+
+                totalDebits += amount;
+
+            }
+
+
+            /* Date */
+
+            const date =
+                transaction.transaction_date
+                    ? new Date(
+                        transaction.transaction_date
+                    ).toLocaleDateString(
+                        "en-US",
+                        {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric"
+                        }
+                    )
+                    : "—";
+
+
+            /* Description */
+
+            const description =
+                transaction.description ||
+                "Bank transaction";
+
+
+            /* Transaction type */
+
+            const displayType =
+                transaction.transaction_type ||
+                (
+                    isCredit
+                        ? "Credit"
+                        : "Debit"
+                );
+
+
+            /* Status */
+
+            const status =
+                transaction.status ||
+                "Pending";
+
+
+            /* Create row */
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${escapeHTML(date)}
+                </td>
+
+                <td>
+                    ${escapeHTML(description)}
+                </td>
+
+                <td>
+                    ${escapeHTML(displayType)}
+                </td>
+
+                <td>
+                    ${money.format(amount)}
+                </td>
+
+                <td>
+                    ${escapeHTML(status)}
+                </td>
+
+            `;
+
+
+            table.appendChild(row);
+
         }
+    );
 
 
-        const date =
-            transaction.transaction_date
-                ? new Date(
-                    transaction.transaction_date
-                ).toLocaleDateString(
-                    "en-US",
-                    {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric"
-                    }
-                )
-                : "—";
-
-
-        const description =
-            transaction.description ||
-            "Bank transaction";
-
-
-        const displayType =
-            transaction.transaction_type ||
-            (isCredit ? "Credit" : "Debit");
-
-
-        const status =
-            transaction.status ||
-            "Pending";
-
-
-        const row =
-            document.createElement("tr");
-
-
-        row.innerHTML = `
-            <td>${escapeHTML(date)}</td>
-
-            <td>${escapeHTML(description)}</td>
-
-            <td>${escapeHTML(displayType)}</td>
-
-            <td>
-                ${money.format(amount)}
-            </td>
-
-            <td>
-                ${escapeHTML(status)}
-            </td>
-        `;
-
-
-        table.appendChild(row);
-
-    });
-
+    /* ===============================
+       UPDATE SUMMARY
+    =============================== */
 
     updateSummary(
         totalCredits,
         totalDebits
     );
+
 }
 
 
@@ -289,15 +434,20 @@ function updateSummary(
 
 
     if (creditsElement) {
+
         creditsElement.textContent =
             money.format(credits);
+
     }
 
 
     if (debitsElement) {
+
         debitsElement.textContent =
             money.format(debits);
+
     }
+
 }
 
 
@@ -322,6 +472,7 @@ function displayNoTransactions() {
                 </td>
             </tr>
         `;
+
     }
 
 
@@ -330,12 +481,19 @@ function displayNoTransactions() {
             "totalTransactions"
         );
 
+
     if (total) {
+
         total.textContent = "0";
+
     }
 
 
-    updateSummary(0, 0);
+    updateSummary(
+        0,
+        0
+    );
+
 }
 
 
@@ -360,7 +518,28 @@ function displayError() {
                 </td>
             </tr>
         `;
+
     }
+
+
+    const total =
+        document.getElementById(
+            "totalTransactions"
+        );
+
+
+    if (total) {
+
+        total.textContent = "0";
+
+    }
+
+
+    updateSummary(
+        0,
+        0
+    );
+
 }
 
 
@@ -374,7 +553,9 @@ async function logout() {
 
         await supabase.auth.signOut();
 
-        localStorage.removeItem("user");
+        localStorage.removeItem(
+            "user"
+        );
 
         window.location.href =
             "login.html";
@@ -390,7 +571,9 @@ async function logout() {
 
         window.location.href =
             "login.html";
+
     }
+
 }
 
 
@@ -401,9 +584,25 @@ async function logout() {
 function escapeHTML(value) {
 
     return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
 }
