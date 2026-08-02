@@ -5,14 +5,14 @@
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-    await loadDashboard();
-
     const logoutButton =
         document.getElementById("logoutButton");
 
     if (logoutButton) {
         logoutButton.addEventListener("click", logout);
     }
+
+    await loadDashboard();
 
 });
 
@@ -25,9 +25,9 @@ async function loadDashboard() {
 
     try {
 
-        /* ---------------------------------
-           1. CHECK SUPABASE LOGIN
-        --------------------------------- */
+        /* ===============================
+           1. CHECK AUTHENTICATION
+        =============================== */
 
         const {
             data: userData,
@@ -35,23 +35,25 @@ async function loadDashboard() {
         } = await supabase.auth.getUser();
 
 
-        if (userError || !userData?.user) {
+        if (
+            userError ||
+            !userData?.user
+        ) {
 
-            window.location.href = "login.html";
+            window.location.href =
+                "login.html";
 
             return;
         }
 
 
-        const authUser = userData.user;
+        const authUser =
+            userData.user;
 
 
-        /* ---------------------------------
+        /* ===============================
            2. LOAD CUSTOMER PROFILE
-           
-           Registration stores the Supabase
-           Auth ID in users.auth_user_id.
-        --------------------------------- */
+        =============================== */
 
         const {
             data: profile,
@@ -59,7 +61,10 @@ async function loadDashboard() {
         } = await supabase
             .from("users")
             .select("*")
-            .eq("auth_user_id", authUser.id)
+            .eq(
+                "auth_user_id",
+                authUser.id
+            )
             .maybeSingle();
 
 
@@ -82,26 +87,23 @@ async function loadDashboard() {
 
             await supabase.auth.signOut();
 
-            window.location.href = "login.html";
+            window.location.href =
+                "login.html";
 
             return;
         }
 
 
-        /* ---------------------------------
-           3. DISPLAY CUSTOMER INFORMATION
-        --------------------------------- */
+        /* ===============================
+           3. DISPLAY PROFILE
+        =============================== */
 
         displayProfile(profile);
 
 
-        /* ---------------------------------
+        /* ===============================
            4. LOAD CUSTOMER ACCOUNT
-           
-           IMPORTANT:
-           accounts.user_id must correspond
-           to public.users.user_id.
-        --------------------------------- */
+        =============================== */
 
         const {
             data: account,
@@ -109,7 +111,10 @@ async function loadDashboard() {
         } = await supabase
             .from("accounts")
             .select("*")
-            .eq("user_id", profile.user_id)
+            .eq(
+                "user_id",
+                profile.user_id
+            )
             .maybeSingle();
 
 
@@ -124,9 +129,9 @@ async function loadDashboard() {
         }
 
 
-        /* ---------------------------------
+        /* ===============================
            5. DISPLAY ACCOUNT
-        --------------------------------- */
+        =============================== */
 
         if (account) {
 
@@ -161,7 +166,7 @@ async function loadDashboard() {
 
 
 /* =====================================
-   DISPLAY PROFILE
+   DISPLAY CUSTOMER PROFILE
 ===================================== */
 
 function displayProfile(profile) {
@@ -171,7 +176,7 @@ function displayProfile(profile) {
         .trim();
 
 
-    /* Name */
+    /* Customer name */
 
     setText(
         "user_name",
@@ -195,6 +200,14 @@ function displayProfile(profile) {
     );
 
 
+    /* Customer ID */
+
+    setText(
+        "customer_id",
+        profile.user_id || "Not available"
+    );
+
+
     /* Customer status */
 
     setText(
@@ -206,7 +219,9 @@ function displayProfile(profile) {
     /* Profile photo */
 
     const photo =
-        document.getElementById("user_photo");
+        document.getElementById(
+            "user_photo"
+        );
 
 
     if (
@@ -238,17 +253,21 @@ function displayAccount(account) {
         );
 
 
-    /* Balance */
+    /* ===============================
+       BALANCE
+    =============================== */
 
     setText(
-        "balance",
+        "account_balance",
         money.format(
             Number(account.balance) || 0
         )
     );
 
 
-    /* Account number */
+    /* ===============================
+       ACCOUNT NUMBER
+    =============================== */
 
     let accountNumber =
         account.account_number || "";
@@ -273,7 +292,9 @@ function displayAccount(account) {
     );
 
 
-    /* Account type */
+    /* ===============================
+       ACCOUNT TYPE
+    =============================== */
 
     setText(
         "account_type",
@@ -281,7 +302,9 @@ function displayAccount(account) {
     );
 
 
-    /* Account status */
+    /* ===============================
+       ACCOUNT STATUS
+    =============================== */
 
     setText(
         "user_status",
@@ -298,7 +321,7 @@ function displayAccount(account) {
 function displayNoAccount() {
 
     setText(
-        "balance",
+        "account_balance",
         "$0.00"
     );
 
@@ -332,8 +355,8 @@ function displayNoAccount() {
         transactionList.innerHTML = `
             <tr>
                 <td colspan="3">
-                    No banking account is currently associated
-                    with your profile.
+                    No banking account is currently
+                    associated with your profile.
                 </td>
             </tr>
         `;
@@ -370,7 +393,10 @@ async function loadRecentTransactions(
         } = await supabase
             .from("transactions")
             .select("*")
-            .eq("account_id", accountId)
+            .eq(
+                "account_id",
+                accountId
+            )
             .order(
                 "transaction_date",
                 {
@@ -491,7 +517,9 @@ async function logout() {
 
         await supabase.auth.signOut();
 
-        localStorage.removeItem("user");
+        localStorage.removeItem(
+            "user"
+        );
 
         window.location.href =
             "login.html";
@@ -514,7 +542,7 @@ async function logout() {
 
 
 /* =====================================
-   HELPER
+   SET TEXT
 ===================================== */
 
 function setText(
@@ -523,13 +551,15 @@ function setText(
 ) {
 
     const element =
-        document.getElementById(elementId);
+        document.getElementById(
+            elementId
+        );
 
 
     if (element) {
 
         element.textContent =
-            value;
+            value ?? "";
 
     }
 
