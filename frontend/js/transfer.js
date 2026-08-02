@@ -1,6 +1,7 @@
 /* =====================================
    TRUSTNOVA BANK
    TRANSFER FORM
+   FRONTEND VALIDATION
 ===================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -9,11 +10,33 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("transferForm");
 
     if (!transferForm) {
-        console.error(
-            "transferForm was not found."
-        );
+        console.error("transferForm was not found.");
         return;
     }
+
+
+    const recipientName =
+        document.getElementById("recipient_name");
+
+    const accountNumber =
+        document.getElementById("account_number");
+
+    const bankName =
+        document.getElementById("bank_name");
+
+    const amountElement =
+        document.getElementById("amount");
+
+    const currencyElement =
+        document.getElementById("currency");
+
+    const descriptionElement =
+        document.getElementById("description");
+
+    const submitButton =
+        transferForm.querySelector(
+            'button[type="submit"]'
+        );
 
 
     transferForm.addEventListener(
@@ -23,55 +46,34 @@ document.addEventListener("DOMContentLoaded", () => {
             event.preventDefault();
 
 
-            /* =====================================
-               GET FORM ELEMENTS
-            ===================================== */
-
-            const recipientName =
-                document.getElementById(
-                    "recipientName"
-                );
-
-            const accountNumber =
-                document.getElementById(
-                    "accountNumber"
-                );
-
-            const bankName =
-                document.getElementById(
-                    "bankName"
-                );
-
-            const amountElement =
-                document.getElementById(
-                    "amount"
-                );
-
-            const descriptionElement =
-                document.getElementById(
-                    "description"
-                );
-
+            /* ===============================
+               CHECK FORM ELEMENTS
+            =============================== */
 
             if (
                 !recipientName ||
                 !accountNumber ||
                 !bankName ||
                 !amountElement ||
+                !currencyElement ||
                 !descriptionElement
             ) {
 
+                console.error(
+                    "One or more transfer fields are missing."
+                );
+
                 alert(
-                    "Transfer form is not configured correctly."
+                    "The transfer form is not configured correctly."
                 );
 
                 return;
             }
 
 
-            /* =====================================
+            /* ===============================
                GET VALUES
-            ===================================== */
+            =============================== */
 
             const recipient =
                 recipientName.value.trim();
@@ -83,23 +85,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 bankName.value.trim();
 
             const amount =
-                Number(
-                    amountElement.value
-                );
+                Number(amountElement.value);
+
+            const currency =
+                currencyElement.value;
 
             const description =
                 descriptionElement.value.trim();
 
 
-            /* =====================================
+            /* ===============================
                VALIDATION
-            ===================================== */
+            =============================== */
 
             if (!recipient) {
 
                 alert(
                     "Please enter the recipient name."
                 );
+
+                recipientName.focus();
 
                 return;
             }
@@ -111,6 +116,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     "Please enter the recipient account number."
                 );
 
+                accountNumber.focus();
+
                 return;
             }
 
@@ -120,6 +127,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert(
                     "Please enter the bank name."
                 );
+
+                bankName.focus();
 
                 return;
             }
@@ -134,18 +143,43 @@ document.addEventListener("DOMContentLoaded", () => {
                     "Please enter a valid transfer amount."
                 );
 
+                amountElement.focus();
+
                 return;
             }
 
 
-            /* =====================================
-               DISABLE BUTTON
-            ===================================== */
+            if (!currency) {
 
-            const submitButton =
-                transferForm.querySelector(
-                    'button[type="submit"]'
+                alert(
+                    "Please select a currency."
                 );
+
+                currencyElement.focus();
+
+                return;
+            }
+
+
+            /* ===============================
+               CHECK AUTHENTICATION
+            =============================== */
+
+            if (
+                typeof supabase === "undefined"
+            ) {
+
+                console.error(
+                    "Supabase client is unavailable."
+                );
+
+                alert(
+                    "The banking service is not configured."
+                );
+
+                return;
+            }
+
 
             if (submitButton) {
                 submitButton.disabled = true;
@@ -153,10 +187,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             try {
-
-                /* =====================================
-                   CHECK LOGIN
-                ===================================== */
 
                 const {
                     data: userData,
@@ -170,6 +200,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     !userData?.user
                 ) {
 
+                    alert(
+                        "Please log in before making a transfer."
+                    );
+
                     window.location.href =
                         "login.html";
 
@@ -177,16 +211,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
 
-                /*
-                 * At this stage the frontend has
-                 * collected and validated the
-                 * transfer request.
-                 *
-                 * The actual movement of money should
-                 * be performed by a secure backend
-                 * transaction.
-                 */
-
+                /* ===============================
+                   TRANSFER REQUEST
+                   
+                   No balance is changed here.
+                   The secure backend will process
+                   the actual transfer later.
+                =============================== */
 
                 const transferRequest = {
 
@@ -202,6 +233,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     amount:
                         amount,
 
+                    currency:
+                        currency,
+
                     description:
                         description ||
                         "Money transfer"
@@ -210,19 +244,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
                 console.log(
-                    "Transfer request:",
+                    "Validated transfer request:",
                     transferRequest
                 );
 
 
-                /*
-                 * Backend transfer processing will
-                 * be connected here later.
-                 */
-
-
                 alert(
-                    "Transfer details are valid. The secure transfer service is not connected yet."
+                    "Transfer details have been validated. Secure transfer processing will be connected to the backend next."
                 );
 
 
@@ -236,7 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
 
                 alert(
-                    "Unable to process the transfer."
+                    "Unable to process the transfer request."
                 );
 
             }
@@ -251,5 +279,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
         }
     );
+
+
+    /* ===============================
+       LOGOUT
+    =============================== */
+
+    const logoutButton =
+        document.getElementById(
+            "logoutButton"
+        );
+
+
+    if (logoutButton) {
+
+        logoutButton.addEventListener(
+            "click",
+            async () => {
+
+                try {
+
+                    await supabase.auth.signOut();
+
+                    localStorage.removeItem("user");
+
+                    window.location.href =
+                        "login.html";
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Logout error:",
+                        error
+                    );
+
+                }
+
+            }
+        );
+
+    }
 
 });
