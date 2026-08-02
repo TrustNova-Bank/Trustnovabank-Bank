@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin Transactions | TrustNova Bank</title>
+
+    <!-- ADMIN CSS -->
+    <link
+        rel="stylesheet"
+        href="css/admin-style.css"
+    >
+
+    <!-- FONT AWESOME -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================
+     ADMIN HEADER
+===================================== -->
+
+<header class="admin-header">
+
+
+    <div class="admin-brand">
+
+        <img
+            src="images/logo.png"
+            alt="TrustNova Bank"
+        >
+
+        <div>
+
+            <h1>
+                TrustNova Bank
+            </h1>
+
+            <span>
+                Administration
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="admin-header-right">
+
+
+        <span class="admin-label">
+
+            <i class="fas fa-user-shield"></i>
+
+            Administrator
+
+        </span>
+
+
+        <button
+            type="button"
+            id="logoutButton"
+            class="logout-button"
+        >
+
+            <i class="fas fa-sign-out-alt"></i>
+
+            Logout
+
+        </button>
+
+
+    </div>
+
+
+</header>
+
+
+
+<!-- =====================================
+     ADMIN LAYOUT
+===================================== -->
+
+<div class="admin-layout">
+
+
+    <!-- =================================
+         SIDEBAR
+    ================================== -->
+
+    <aside class="admin-sidebar">
+
+
+        <nav>
+
+
+            <a href="Admin.html">
+
+                <i class="fas fa-chart-line"></i>
+
+                Dashboard
+
+            </a>
+
+
+            <a href="Admin-users.html">
+
+                <i class="fas fa-users"></i>
+
+                Customers
+
+            </a>
+
+
+            <a href="Admin-account.html">
+
+                <i class="fas fa-university"></i>
+
+                Accounts
+
+            </a>
+
+
+            <a
+                href="Admin-transactions.html"
+                class="active"
+            >
+
+                <i class="fas fa-exchange-alt"></i>
+
+                Transactions
+
+            </a>
+
+
+            <a href="open-accounts.html">
+
+                <i class="fas fa-folder-plus"></i>
+
+                Open Accounts
+
+            </a>
+
+
+            <a href="payment.html">
+
+                <i class="fas fa-credit-card"></i>
+
+                Payments
+
+            </a>
+
+
+        </nav>
+
+
+    </aside>
+
+
+
+    <!-- =================================
+         MAIN CONTENT
+    ================================== -->
+
+    <main class="admin-main">
+
+
+        <!-- PAGE HEADER -->
+
+        <div class="page-header">
+
+
+            <div>
+
+                <h2>
+                    Transaction Management
+                </h2>
+
+                <p>
+                    View and monitor customer banking transactions.
+                </p>
+
+            </div>
+
+
+            <div class="account-counter">
+
+                <i class="fas fa-exchange-alt"></i>
+
+                <span>
+                    Total Transactions:
+                </span>
+
+                <strong id="totalTransactions">
+                    0
+                </strong>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =================================
+             SEARCH
+        ================================== -->
+
+        <section class="admin-card">
+
+
+            <div class="search-container">
+
+
+                <label for="transactionSearch">
+
+                    <i class="fas fa-search"></i>
+
+                    Search Transactions
+
+                </label>
+
+
+                <input
+                    type="search"
+                    id="transactionSearch"
+                    name="transactionSearch"
+                    placeholder="Search by description, transaction type, or status..."
+                    autocomplete="off"
+                >
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================
+             TRANSACTION TABLE
+        ================================== -->
+
+        <section class="admin-card">
+
+
+            <div class="table-header">
+
+
+                <div>
+
+                    <h3>
+                        Transaction Records
+                    </h3>
+
+                    <p>
+                        Recent customer transaction activity.
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+
+            <div class="table-wrapper">
+
+
+                <table class="admin-table">
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Transaction ID
+                            </th>
+
+                            <th>
+                                Account ID
+                            </th>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Description
+                            </th>
+
+                            <th>
+                                Type
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="transactionList">
+
+
+                        <tr>
+
+                            <td colspan="7">
+
+                                Loading transactions...
+
+                            </td>
+
+                        </tr>
+
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+
+<!-- =====================================
+     FOOTER
+===================================== -->
+
+<footer class="admin-footer">
+
+    <p>
+        &copy; 2026 TrustNova Bank.
+        All Rights Reserved.
+    </p>
+
+
+    <p>
+        Secure Administration Portal
+    </p>
+
+</footer>
+
+
+
+<!-- =====================================
+     JAVASCRIPT
+===================================== -->
+
+<!-- SUPABASE LIBRARY -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<!-- ADMIN SUPABASE CONFIGURATION -->
+<script src="js/supabase.js"></script>
+
+
+<!-- ADMIN AUTHENTICATION -->
+<script src="js/admin-auth.js"></script>
+
+
+<!-- ADMIN TRANSACTION MANAGEMENT -->
+<script src="js/admin-transactions.js"></script>
+
+
+</body>
+
+</html>
