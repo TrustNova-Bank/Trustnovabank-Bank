@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin Accounts | TrustNova Bank</title>
+
+    <!-- Admin CSS -->
+    <link
+        rel="stylesheet"
+        href="css/admin-style.css"
+    >
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================
+     ADMIN HEADER
+===================================== -->
+
+<header class="admin-header">
+
+    <div class="admin-brand">
+
+        <img
+            src="images/logo.png"
+            alt="TrustNova Bank"
+        >
+
+        <div>
+
+            <h1>
+                TrustNova Bank
+            </h1>
+
+            <span>
+                Administration
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="admin-header-right">
+
+        <span class="admin-label">
+            <i class="fas fa-user-shield"></i>
+            Administrator
+        </span>
+
+        <button
+            type="button"
+            id="logoutButton"
+            class="logout-button"
+        >
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+        </button>
+
+    </div>
+
+</header>
+
+
+
+<!-- =====================================
+     ADMIN LAYOUT
+===================================== -->
+
+<div class="admin-layout">
+
+
+    <!-- =================================
+         SIDEBAR
+    ================================== -->
+
+    <aside class="admin-sidebar">
+
+        <nav>
+
+            <a href="admin-dashboard.html">
+                <i class="fas fa-chart-line"></i>
+                Dashboard
+            </a>
+
+
+            <a
+                href="admin-users.html"
+            >
+                <i class="fas fa-users"></i>
+                Users
+            </a>
+
+
+            <a
+                href="admin-accounts.html"
+                class="active"
+            >
+                <i class="fas fa-university"></i>
+                Accounts
+            </a>
+
+
+            <a
+                href="admin-transactions.html"
+            >
+                <i class="fas fa-exchange-alt"></i>
+                Transactions
+            </a>
+
+
+            <a href="open-accounts.html">
+                <i class="fas fa-folder-plus"></i>
+                Open Accounts
+            </a>
+
+
+            <a href="payment.html">
+                <i class="fas fa-credit-card"></i>
+                Payments
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+
+    <!-- =================================
+         MAIN CONTENT
+    ================================== -->
+
+    <main class="admin-main">
+
+
+        <!-- Page Header -->
+
+        <div class="page-header">
+
+            <div>
+
+                <h2>
+                    Account Management
+                </h2>
+
+                <p>
+                    View and manage customer banking accounts.
+                </p>
+
+            </div>
+
+
+            <div class="account-counter">
+
+                <i class="fas fa-university"></i>
+
+                <span>
+                    Total Accounts:
+                </span>
+
+                <strong id="totalAccounts">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================
+             SEARCH
+        ================================== -->
+
+        <section class="admin-card">
+
+            <div class="search-container">
+
+                <label for="accountSearch">
+
+                    <i class="fas fa-search"></i>
+
+                    Search Accounts
+
+                </label>
+
+
+                <input
+                    type="search"
+                    id="accountSearch"
+                    name="accountSearch"
+                    placeholder="Search by account number, name, type, or status..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================
+             ACCOUNTS TABLE
+        ================================== -->
+
+        <section class="admin-card">
+
+
+            <div class="table-header">
+
+                <div>
+
+                    <h3>
+                        Customer Accounts
+                    </h3>
+
+                    <p>
+                        Account records currently available.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table class="admin-table">
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Account ID
+                            </th>
+
+                            <th>
+                                User ID
+                            </th>
+
+                            <th>
+                                Account Number
+                            </th>
+
+                            <th>
+                                Account Name
+                            </th>
+
+                            <th>
+                                Account Type
+                            </th>
+
+                            <th>
+                                Balance
+                            </th>
+
+                            <th>
+                                Currency
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Opened Date
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="accountList">
+
+                        <tr>
+
+                            <td colspan="9">
+
+                                Loading accounts...
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+
+                </table>
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+
+<!-- =====================================
+     FOOTER
+===================================== -->
+
+<footer class="admin-footer">
+
+    <p>
+        &copy; 2026 TrustNova Bank.
+        All Rights Reserved.
+    </p>
+
+    <p>
+        Secure Administration Portal
+    </p>
+
+</footer>
+
+
+
+<!-- =====================================
+     JAVASCRIPT
+===================================== -->
+
+<!-- Supabase Library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Admin Supabase Configuration -->
+<script src="js/supabase.js"></script>
+
+<!-- Authentication -->
+<script src="js/auth.js"></script>
+
+<!-- Admin Authentication -->
+<script src="js/admin-auth.js"></script>
+
+<!-- Account Management -->
+<script src="js/admin-accounts.js"></script>
+
+
+</body>
+
+</html>
