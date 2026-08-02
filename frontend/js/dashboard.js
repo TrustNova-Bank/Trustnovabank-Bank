@@ -9,7 +9,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("logoutButton");
 
     if (logoutButton) {
-        logoutButton.addEventListener("click", logout);
+
+        logoutButton.addEventListener(
+            "click",
+            logout
+        );
+
     }
 
     await loadDashboard();
@@ -26,13 +31,14 @@ async function loadDashboard() {
     try {
 
         /* ===============================
-           1. CHECK AUTHENTICATION
+           CHECK AUTHENTICATION
         =============================== */
 
         const {
             data: userData,
             error: userError
-        } = await supabase.auth.getUser();
+        } =
+            await supabase.auth.getUser();
 
 
         if (
@@ -44,6 +50,7 @@ async function loadDashboard() {
                 "login.html";
 
             return;
+
         }
 
 
@@ -52,20 +59,25 @@ async function loadDashboard() {
 
 
         /* ===============================
-           2. LOAD CUSTOMER PROFILE
+           LOAD CUSTOMER PROFILE
         =============================== */
 
         const {
             data: profile,
             error: profileError
-        } = await supabase
-            .from("users")
-            .select("*")
-            .eq(
-                "auth_user_id",
-                authUser.id
-            )
-            .maybeSingle();
+        } =
+            await supabase
+
+                .from("users")
+
+                .select("*")
+
+                .eq(
+                    "auth_user_id",
+                    authUser.id
+                )
+
+                .maybeSingle();
 
 
         if (profileError) {
@@ -76,6 +88,7 @@ async function loadDashboard() {
             );
 
             throw profileError;
+
         }
 
 
@@ -91,31 +104,37 @@ async function loadDashboard() {
                 "login.html";
 
             return;
+
         }
 
 
         /* ===============================
-           3. DISPLAY PROFILE
+           DISPLAY PROFILE
         =============================== */
 
         displayProfile(profile);
 
 
         /* ===============================
-           4. LOAD CUSTOMER ACCOUNT
+           LOAD CUSTOMER ACCOUNT
         =============================== */
 
         const {
             data: account,
             error: accountError
-        } = await supabase
-            .from("accounts")
-            .select("*")
-            .eq(
-                "user_id",
-                profile.user_id
-            )
-            .maybeSingle();
+        } =
+            await supabase
+
+                .from("accounts")
+
+                .select("*")
+
+                .eq(
+                    "user_id",
+                    profile.user_id
+                )
+
+                .maybeSingle();
 
 
         if (accountError) {
@@ -126,11 +145,12 @@ async function loadDashboard() {
             );
 
             throw accountError;
+
         }
 
 
         /* ===============================
-           5. DISPLAY ACCOUNT
+           DISPLAY ACCOUNT
         =============================== */
 
         if (account) {
@@ -141,7 +161,9 @@ async function loadDashboard() {
                 account.account_id
             );
 
-        } else {
+        }
+
+        else {
 
             displayNoAccount();
 
@@ -173,10 +195,12 @@ function displayProfile(profile) {
 
     const fullName =
         `${profile.first_name || ""} ${profile.last_name || ""}`
-        .trim();
+            .trim();
 
 
-    /* Customer name */
+    /* ===============================
+       CUSTOMER NAME
+    =============================== */
 
     setText(
         "user_name",
@@ -184,39 +208,53 @@ function displayProfile(profile) {
     );
 
 
-    /* Email */
+    /* ===============================
+       EMAIL
+    =============================== */
 
     setText(
         "user_email",
-        profile.email || "Not available"
+        profile.email ||
+        "Not available"
     );
 
 
-    /* Nationality */
+    /* ===============================
+       NATIONALITY
+    =============================== */
 
     setText(
         "user_nationality",
-        profile.nationality || "Not provided"
+        profile.nationality ||
+        "Not provided"
     );
 
 
-    /* Customer ID */
+    /* ===============================
+       CUSTOMER ID
+    =============================== */
 
     setText(
         "customer_id",
-        profile.user_id || "Not available"
+        profile.user_id ||
+        "Not available"
     );
 
 
-    /* Customer status */
+    /* ===============================
+       PROFILE STATUS
+    =============================== */
 
     setText(
         "user_status",
-        profile.status || "Active"
+        profile.status ||
+        "Active"
     );
 
 
-    /* Profile photo */
+    /* ===============================
+       PROFILE PHOTO
+    =============================== */
 
     const photo =
         document.getElementById(
@@ -257,11 +295,13 @@ function displayAccount(account) {
        BALANCE
     =============================== */
 
+    const balance =
+        Number(account.balance) || 0;
+
+
     setText(
         "account_balance",
-        money.format(
-            Number(account.balance) || 0
-        )
+        money.format(balance)
     );
 
 
@@ -288,7 +328,8 @@ function displayAccount(account) {
 
     setText(
         "account_number",
-        accountNumber || "Not available"
+        accountNumber ||
+        "Not available"
     );
 
 
@@ -298,7 +339,8 @@ function displayAccount(account) {
 
     setText(
         "account_type",
-        account.account_type || "Standard"
+        account.account_type ||
+        "Standard"
     );
 
 
@@ -308,7 +350,8 @@ function displayAccount(account) {
 
     setText(
         "user_status",
-        account.status || "Active"
+        account.status ||
+        "Active"
     );
 
 }
@@ -381,7 +424,9 @@ async function loadRecentTransactions(
 
 
     if (!transactionList) {
+
         return;
+
     }
 
 
@@ -390,24 +435,32 @@ async function loadRecentTransactions(
         const {
             data: transactions,
             error
-        } = await supabase
-            .from("transactions")
-            .select("*")
-            .eq(
-                "account_id",
-                accountId
-            )
-            .order(
-                "transaction_date",
-                {
-                    ascending: false
-                }
-            )
-            .limit(5);
+        } =
+            await supabase
+
+                .from("transactions")
+
+                .select("*")
+
+                .eq(
+                    "account_id",
+                    accountId
+                )
+
+                .order(
+                    "transaction_date",
+                    {
+                        ascending: false
+                    }
+                )
+
+                .limit(5);
 
 
         if (error) {
+
             throw error;
+
         }
 
 
@@ -428,6 +481,7 @@ async function loadRecentTransactions(
             `;
 
             return;
+
         }
 
 
@@ -442,10 +496,12 @@ async function loadRecentTransactions(
 
 
         transactions.forEach(
-            transaction => {
+            (transaction) => {
 
                 const row =
-                    document.createElement("tr");
+                    document.createElement(
+                        "tr"
+                    );
 
 
                 const description =
@@ -455,7 +511,9 @@ async function loadRecentTransactions(
 
                 const amount =
                     money.format(
-                        Number(transaction.amount) || 0
+                        Number(
+                            transaction.amount
+                        ) || 0
                     );
 
 
@@ -465,8 +523,11 @@ async function loadRecentTransactions(
 
 
                 row.innerHTML = `
+
                     <td>
-                        ${escapeHTML(description)}
+                        ${escapeHTML(
+                            description
+                        )}
                     </td>
 
                     <td>
@@ -474,12 +535,17 @@ async function loadRecentTransactions(
                     </td>
 
                     <td>
-                        ${escapeHTML(status)}
+                        ${escapeHTML(
+                            status
+                        )}
                     </td>
+
                 `;
 
 
-                transactionList.appendChild(row);
+                transactionList.appendChild(
+                    row
+                );
 
             }
         );
@@ -567,16 +633,36 @@ function setText(
 
 
 /* =====================================
-   BASIC HTML ESCAPING
+   HTML ESCAPING
 ===================================== */
 
 function escapeHTML(value) {
 
     return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
