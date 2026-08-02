@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Open Account | TrustNova Bank Admin</title>
+
+    <!-- Admin CSS -->
+    <link
+        rel="stylesheet"
+        href="css/admin.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================
+     ADMIN HEADER
+===================================== -->
+
+<header class="admin-header">
+
+    <div class="admin-brand">
+
+        <img
+            src="images/logo.png"
+            alt="TrustNova Bank"
+            class="admin-logo"
+        >
+
+        <div>
+
+            <h1>
+                TrustNova Bank
+            </h1>
+
+            <span>
+                Administration
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <button
+        type="button"
+        id="logoutButton"
+        class="logout-button"
+    >
+        Logout
+    </button>
+
+</header>
+
+
+
+<!-- =====================================
+     ADMIN NAVIGATION
+===================================== -->
+
+<nav class="admin-nav">
+
+    <a href="Admin.html">
+        Dashboard
+    </a>
+
+    <a href="Admin-users.html">
+        Customers
+    </a>
+
+    <a href="Admin-account.html">
+        Accounts
+    </a>
+
+    <a href="Admin-transactions.html">
+        Transactions
+    </a>
+
+    <a
+        href="open-accounts.html"
+        class="active"
+    >
+        Open Account
+    </a>
+
+    <a href="payment.html">
+        Payments
+    </a>
+
+</nav>
+
+
+
+<!-- =====================================
+     MAIN CONTENT
+===================================== -->
+
+<main class="admin-container">
+
+
+    <section class="admin-page-header">
+
+        <div>
+
+            <h2>
+                Open New Account
+            </h2>
+
+            <p>
+                Create a new customer bank account.
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================
+         OPEN ACCOUNT FORM
+    ===================================== -->
+
+    <section class="admin-card">
+
+
+        <form
+            id="openAccountForm"
+            class="admin-form"
+        >
+
+
+            <!-- Customer -->
+
+            <div class="form-group">
+
+                <label for="user_id">
+                    Customer
+                </label>
+
+                <select
+                    id="user_id"
+                    name="user_id"
+                    required
+                >
+
+                    <option value="">
+                        Loading customers...
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- Account Name -->
+
+            <div class="form-group">
+
+                <label for="account_name">
+                    Account Name
+                </label>
+
+                <input
+                    type="text"
+                    id="account_name"
+                    name="account_name"
+                    placeholder="Customer Account"
+                >
+
+            </div>
+
+
+
+            <!-- Account Type -->
+
+            <div class="form-group">
+
+                <label for="account_type">
+                    Account Type
+                </label>
+
+                <select
+                    id="account_type"
+                    name="account_type"
+                    required
+                >
+
+                    <option value="">
+                        Select Account Type
+                    </option>
+
+                    <option value="Savings">
+                        Savings Account
+                    </option>
+
+                    <option value="Checking">
+                        Checking Account
+                    </option>
+
+                    <option value="Current">
+                        Current Account
+                    </option>
+
+                    <option value="Business">
+                        Business Account
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- Currency -->
+
+            <div class="form-group">
+
+                <label for="currency">
+                    Currency
+                </label>
+
+                <select
+                    id="currency"
+                    name="currency"
+                >
+
+                    <option value="USD">
+                        USD — US Dollar
+                    </option>
+
+                    <option value="NGN">
+                        NGN — Nigerian Naira
+                    </option>
+
+                    <option value="EUR">
+                        EUR — Euro
+                    </option>
+
+                    <option value="GBP">
+                        GBP — British Pound
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- Opening Balance -->
+
+            <div class="form-group">
+
+                <label for="balance">
+                    Opening Balance
+                </label>
+
+                <input
+                    type="number"
+                    id="balance"
+                    name="balance"
+                    placeholder="0.00"
+                    min="0"
+                    step="0.01"
+                    value="0"
+                >
+
+            </div>
+
+
+
+            <!-- Branch -->
+
+            <div class="form-group">
+
+                <label for="branch">
+                    Branch
+                </label>
+
+                <input
+                    type="text"
+                    id="branch"
+                    name="branch"
+                    placeholder="Branch name"
+                >
+
+            </div>
+
+
+
+            <!-- Generated Account Number -->
+
+            <div class="generated-account">
+
+                <span>
+                    Generated Account Number
+                </span>
+
+                <strong
+                    id="generatedAccountNumber"
+                >
+                    Will be generated after opening
+                </strong>
+
+            </div>
+
+
+
+            <!-- Submit -->
+
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Open Account
+                </button>
+
+                <button
+                    type="reset"
+                    class="secondary-button"
+                >
+                    Clear
+                </button>
+
+            </div>
+
+
+        </form>
+
+
+    </section>
+
+
+</main>
+
+
+
+<!-- =====================================
+     JAVASCRIPT
+===================================== -->
+
+<!-- Supabase Library -->
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<!-- Admin Supabase Configuration -->
+<script src="js/supabase.js"></script>
+
+
+<!-- Admin Authentication -->
+<script src="js/admin-auth.js"></script>
+
+
+<!-- Open Account -->
+<script src="js/open-accounts.js"></script>
+
+
+</body>
+
+</html>
