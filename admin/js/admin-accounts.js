@@ -1,13 +1,11 @@
 /* =====================================
    TRUSTNOVA BANK
    ADMIN ACCOUNT MANAGEMENT
-   SUPABASE
 ===================================== */
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-    const admin =
-        await requireAdminAuth();
+    const admin = await requireAdminAuth();
 
     if (!admin) {
         return;
@@ -15,6 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await loadAccounts();
 
+    setupAccountSearch();
     setupLogout();
 
 });
@@ -24,35 +23,56 @@ document.addEventListener("DOMContentLoaded", async () => {
    LOAD ACCOUNTS
 ===================================== */
 
-async function loadAccounts() {
+async function loadAccounts(searchTerm = "") {
 
-    const accountTable =
+    const table =
         document.getElementById("accountList");
 
-    if (!accountTable) {
+    if (!table) {
         return;
     }
 
+    table.innerHTML = `
+        <tr>
+            <td colspan="9">
+                Loading accounts...
+            </td>
+        </tr>
+    `;
+
     try {
 
-        const {
-            data: accounts,
-            error
-        } = await supabase
+        let query = supabase
             .from("accounts")
             .select("*")
             .order(
-                "created_at",
+                "opened_date",
                 {
                     ascending: false
                 }
             );
 
+        const search =
+            String(searchTerm).trim();
+
+        if (search) {
+
+            const safeSearch =
+                search.replace(/[%_]/g, "");
+
+            query = query.or(
+                `account_number.ilike.%${safeSearch}%,account_name.ilike.%${safeSearch}%,account_type.ilike.%${safeSearch}%,status.ilike.%${safeSearch}%`
+            );
+        }
+
+        const {
+            data: accounts,
+            error
+        } = await query;
 
         if (error) {
             throw error;
         }
-
 
         displayAccounts(
             accounts || []
@@ -67,10 +87,10 @@ async function loadAccounts() {
             error
         );
 
-        accountTable.innerHTML = `
+        table.innerHTML = `
             <tr>
-                <td colspan="7">
-                    Unable to load accounts.
+                <td colspan="9">
+                    Unable to load account records.
                 </td>
             </tr>
         `;
@@ -84,28 +104,35 @@ async function loadAccounts() {
 
 function displayAccounts(accounts) {
 
-    const accountTable =
-        document.getElementById("accountList");
+    const table =
+        document.getElementById(
+            "accountList"
+        );
 
-    if (!accountTable) {
+    if (!table) {
         return;
     }
 
+    table.innerHTML = "";
 
-    accountTable.innerHTML = "";
+    const totalElement =
+        document.getElementById(
+            "totalAccounts"
+        );
 
+    if (totalElement) {
 
-    updateAccountCount(
-        accounts.length
-    );
+        totalElement.textContent =
+            accounts.length;
 
+    }
 
     if (accounts.length === 0) {
 
-        accountTable.innerHTML = `
+        table.innerHTML = `
             <tr>
-                <td colspan="7">
-                    No customer accounts found.
+                <td colspan="9">
+                    No accounts found.
                 </td>
             </tr>
         `;
@@ -120,40 +147,22 @@ function displayAccounts(accounts) {
             document.createElement("tr");
 
 
-        const accountId =
-            account.account_id ?? "—";
-
-
-        const userId =
-            account.user_id ?? "—";
-
-
         const accountNumber =
-            account.account_number
-                ? maskAccountNumber(
-                    account.account_number
-                )
-                : "—";
-
-
-        const accountType =
-            account.account_type ||
-            "Standard";
-
-
-        const balance =
-            formatCurrency(
-                account.balance
+            maskAccountNumber(
+                account.account_number
             );
 
 
-        const status =
-            account.status ||
-            "Active";
+        const balance =
+            formatMoney(
+                account.balance,
+                account.currency
+            );
 
 
-        const createdAt =
+        const openedDate =
             formatDate(
+                account.opened_date ||
                 account.created_at
             );
 
@@ -161,37 +170,66 @@ function displayAccounts(accounts) {
         row.innerHTML = `
 
             <td>
-                ${escapeHTML(accountId)}
+                ${escapeHTML(
+                    account.account_id || "—"
+                )}
             </td>
 
             <td>
-                ${escapeHTML(userId)}
+                ${escapeHTML(
+                    account.user_id || "—"
+                )}
             </td>
 
             <td>
-                ${escapeHTML(accountNumber)}
+                ${escapeHTML(
+                    accountNumber
+                )}
             </td>
 
             <td>
-                ${escapeHTML(accountType)}
+                ${escapeHTML(
+                    account.account_name ||
+                    "—"
+                )}
             </td>
 
             <td>
-                ${escapeHTML(balance)}
+                ${escapeHTML(
+                    account.account_type ||
+                    "Standard"
+                )}
             </td>
 
             <td>
-                ${escapeHTML(status)}
+                ${escapeHTML(
+                    balance
+                )}
             </td>
 
             <td>
-                ${escapeHTML(createdAt)}
+                ${escapeHTML(
+                    account.currency ||
+                    "USD"
+                )}
+            </td>
+
+            <td>
+                ${escapeHTML(
+                    account.status ||
+                    "Active"
+                )}
+            </td>
+
+            <td>
+                ${escapeHTML(
+                    openedDate
+                )}
             </td>
 
         `;
 
-
-        accountTable.appendChild(row);
+        table.appendChild(row);
 
     });
 
@@ -199,146 +237,48 @@ function displayAccounts(accounts) {
 
 
 /* =====================================
-   UPDATE ACCOUNT COUNT
+   ACCOUNT SEARCH
 ===================================== */
 
-function updateAccountCount(count) {
-
-    const element =
-        document.getElementById(
-            "totalAccounts"
-        );
-
-    if (element) {
-
-        element.textContent =
-            count;
-    }
-}
-
-
-/* =====================================
-   SEARCH ACCOUNTS
-===================================== */
-
-function searchAccounts() {
+function setupAccountSearch() {
 
     const searchInput =
         document.getElementById(
             "accountSearch"
         );
 
-
-    const rows =
-        document.querySelectorAll(
-            "#accountList tr"
-        );
-
-
     if (!searchInput) {
         return;
     }
 
 
-    const searchValue =
-        searchInput.value
-            .trim()
-            .toLowerCase();
+    let searchTimer;
 
 
-    rows.forEach(row => {
+    searchInput.addEventListener(
+        "input",
+        () => {
 
-        const text =
-            row.textContent
-                .toLowerCase();
-
-
-        row.style.display =
-            text.includes(searchValue)
-                ? ""
-                : "none";
-
-    });
-
-}
+            clearTimeout(
+                searchTimer
+            );
 
 
-/* =====================================
-   MASK ACCOUNT NUMBER
-===================================== */
+            searchTimer =
+                setTimeout(
+                    () => {
 
-function maskAccountNumber(
-    accountNumber
-) {
+                        loadAccounts(
+                            searchInput.value
+                        );
 
-    const value =
-        String(accountNumber);
+                    },
+                    300
+                );
 
-
-    if (value.length <= 4) {
-        return value;
-    }
-
-
-    return (
-        "**** **** " +
-        value.slice(-4)
-    );
-}
-
-
-/* =====================================
-   FORMAT CURRENCY
-===================================== */
-
-function formatCurrency(
-    amount
-) {
-
-    const value =
-        Number(amount) || 0;
-
-
-    return new Intl.NumberFormat(
-        "en-US",
-        {
-            style: "currency",
-            currency: "USD"
-        }
-    ).format(value);
-}
-
-
-/* =====================================
-   FORMAT DATE
-===================================== */
-
-function formatDate(
-    value
-) {
-
-    if (!value) {
-        return "—";
-    }
-
-
-    const date =
-        new Date(value);
-
-
-    if (Number.isNaN(date.getTime())) {
-        return "—";
-    }
-
-
-    return date.toLocaleDateString(
-        "en-US",
-        {
-            year: "numeric",
-            month: "short",
-            day: "numeric"
         }
     );
+
 }
 
 
@@ -353,25 +293,137 @@ function setupLogout() {
             "logoutButton"
         );
 
-
-    if (logoutButton) {
-
-        logoutButton.addEventListener(
-            "click",
-            adminLogout
-        );
-
+    if (!logoutButton) {
+        return;
     }
+
+
+    logoutButton.addEventListener(
+        "click",
+        adminLogout
+    );
+
 }
 
 
 /* =====================================
-   HTML SAFETY
+   MASK ACCOUNT NUMBER
+===================================== */
+
+function maskAccountNumber(value) {
+
+    if (!value) {
+        return "—";
+    }
+
+
+    const accountNumber =
+        String(value);
+
+
+    if (accountNumber.length <= 4) {
+        return accountNumber;
+    }
+
+
+    return (
+        "**** **** " +
+        accountNumber.slice(-4)
+    );
+
+}
+
+
+/* =====================================
+   FORMAT MONEY
+===================================== */
+
+function formatMoney(
+    amount,
+    currency = "USD"
+) {
+
+    const numericAmount =
+        Number(amount) || 0;
+
+
+    const currencyCode =
+        String(
+            currency || "USD"
+        ).toUpperCase();
+
+
+    try {
+
+        return new Intl.NumberFormat(
+            "en-US",
+            {
+                style: "currency",
+                currency: currencyCode
+            }
+        ).format(
+            numericAmount
+        );
+
+    }
+
+    catch (error) {
+
+        return (
+            numericAmount.toFixed(2) +
+            " " +
+            currencyCode
+        );
+
+    }
+
+}
+
+
+/* =====================================
+   FORMAT DATE
+===================================== */
+
+function formatDate(value) {
+
+    if (!value) {
+        return "—";
+    }
+
+
+    const date =
+        new Date(value);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return "—";
+    }
+
+
+    return date.toLocaleDateString(
+        "en-US",
+        {
+            year: "numeric",
+            month: "short",
+            day: "numeric"
+        }
+    );
+
+}
+
+
+/* =====================================
+   HTML ESCAPING
 ===================================== */
 
 function escapeHTML(value) {
 
-    return String(value ?? "")
+    return String(value)
         .replace(
             /&/g,
             "&amp;"
@@ -392,4 +444,5 @@ function escapeHTML(value) {
             /'/g,
             "&#039;"
         );
+
 }
