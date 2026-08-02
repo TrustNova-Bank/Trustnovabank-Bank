@@ -12,9 +12,10 @@
 
     <title>Login - TrustNova Bank</title>
 
+    <!-- Main CSS -->
     <link
         rel="stylesheet"
-        href="style.css"
+        href="css/style.css"
     >
 
 </head>
@@ -36,7 +37,10 @@
         >
 
 
-        <h1>Welcome Back</h1>
+        <h1>
+            Welcome Back
+        </h1>
+
 
         <p>
             Login to your TrustNova Bank account
@@ -89,6 +93,7 @@
                     <input
                         type="checkbox"
                         id="remember"
+                        name="remember"
                     >
 
                     Remember me
@@ -122,20 +127,33 @@
         </div>
 
 
+        <div class="back-home">
+
+            <a href="index.html">
+                ← Back to Home
+            </a>
+
+        </div>
+
+
     </div>
 
 
 </section>
 
 
+<!-- =====================================
+     JAVASCRIPT
+===================================== -->
+
 <!-- Supabase Library -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <!-- Supabase Configuration -->
-<script src="supabase.js"></script>
+<script src="js/supabase.js"></script>
 
 <!-- Customer Login -->
-<script src="login.js"></script>
+<script src="js/login.js"></script>
 
 
 </body>
