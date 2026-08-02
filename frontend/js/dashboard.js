@@ -4,7 +4,16 @@
 ===================================== */
 
 document.addEventListener("DOMContentLoaded", async () => {
+
     await loadDashboard();
+
+    const logoutButton =
+        document.getElementById("logoutButton");
+
+    if (logoutButton) {
+        logoutButton.addEventListener("click", logout);
+    }
+
 });
 
 
@@ -16,22 +25,33 @@ async function loadDashboard() {
 
     try {
 
+        /* ---------------------------------
+           1. CHECK SUPABASE LOGIN
+        --------------------------------- */
+
         const {
             data: userData,
             error: userError
         } = await supabase.auth.getUser();
 
+
         if (userError || !userData?.user) {
+
             window.location.href = "login.html";
+
             return;
         }
+
 
         const authUser = userData.user;
 
 
-        /* =====================================
-           LOAD CUSTOMER PROFILE
-        ===================================== */
+        /* ---------------------------------
+           2. LOAD CUSTOMER PROFILE
+           
+           Registration stores the Supabase
+           Auth ID in users.auth_user_id.
+        --------------------------------- */
 
         const {
             data: profile,
@@ -44,28 +64,44 @@ async function loadDashboard() {
 
 
         if (profileError) {
+
             console.error(
-                "Profile loading error:",
+                "Profile error:",
                 profileError
             );
 
-            alert("Unable to load your customer profile.");
-            return;
+            throw profileError;
         }
 
 
         if (!profile) {
-            alert("Customer profile not found.");
+
+            alert(
+                "Customer profile could not be found."
+            );
+
+            await supabase.auth.signOut();
+
+            window.location.href = "login.html";
+
             return;
         }
 
 
+        /* ---------------------------------
+           3. DISPLAY CUSTOMER INFORMATION
+        --------------------------------- */
+
         displayProfile(profile);
 
 
-        /* =====================================
-           LOAD CUSTOMER ACCOUNT
-        ===================================== */
+        /* ---------------------------------
+           4. LOAD CUSTOMER ACCOUNT
+           
+           IMPORTANT:
+           accounts.user_id must correspond
+           to public.users.user_id.
+        --------------------------------- */
 
         const {
             data: account,
@@ -80,32 +116,29 @@ async function loadDashboard() {
         if (accountError) {
 
             console.error(
-                "Account loading error:",
+                "Account error:",
                 accountError
             );
 
-            displayAccount(null);
-
-        } else {
-
-            displayAccount(account);
-
+            throw accountError;
         }
 
 
-        /* =====================================
-           LOAD TRANSACTIONS
-        ===================================== */
+        /* ---------------------------------
+           5. DISPLAY ACCOUNT
+        --------------------------------- */
 
-        if (account?.account_id) {
+        if (account) {
 
-            await loadTransactions(
+            displayAccount(account);
+
+            await loadRecentTransactions(
                 account.account_id
             );
 
         } else {
 
-            displayNoTransactions();
+            displayNoAccount();
 
         }
 
@@ -114,15 +147,16 @@ async function loadDashboard() {
     catch (error) {
 
         console.error(
-            "Dashboard error:",
+            "Dashboard loading error:",
             error
         );
 
         alert(
-            "Unable to load your dashboard."
+            "Unable to load your dashboard. Please try again."
         );
 
     }
+
 }
 
 
@@ -132,54 +166,48 @@ async function loadDashboard() {
 
 function displayProfile(profile) {
 
-    const name =
-        document.getElementById("user_name");
-
-    if (name) {
-
-        name.textContent =
-            `${profile.first_name || ""} ${profile.last_name || ""}`.trim();
-
-    }
+    const fullName =
+        `${profile.first_name || ""} ${profile.last_name || ""}`
+        .trim();
 
 
-    const email =
-        document.getElementById("user_email");
+    /* Name */
 
-    if (email) {
-
-        email.textContent =
-            profile.email || "";
-
-    }
+    setText(
+        "user_name",
+        fullName || "Customer"
+    );
 
 
-    const nationality =
-        document.getElementById("user_nationality");
+    /* Email */
 
-    if (nationality) {
-
-        nationality.textContent =
-            profile.nationality
-                ? `Nationality: ${profile.nationality}`
-                : "Nationality: Not provided";
-
-    }
+    setText(
+        "user_email",
+        profile.email || "Not available"
+    );
 
 
-    const status =
-        document.getElementById("user_status");
+    /* Nationality */
 
-    if (status) {
+    setText(
+        "user_nationality",
+        profile.nationality || "Not provided"
+    );
 
-        status.textContent =
-            profile.status || "Active";
 
-    }
+    /* Customer status */
 
+    setText(
+        "user_status",
+        profile.status || "Active"
+    );
+
+
+    /* Profile photo */
 
     const photo =
         document.getElementById("user_photo");
+
 
     if (
         photo &&
@@ -190,6 +218,7 @@ function displayProfile(profile) {
             profile.profile_photo;
 
     }
+
 }
 
 
@@ -209,207 +238,246 @@ function displayAccount(account) {
         );
 
 
-    const balance =
-        document.getElementById("balance");
+    /* Balance */
 
-    const accountNumber =
-        document.getElementById("account_number");
-
-    const accountType =
-        document.getElementById("account_type");
-
-
-    if (!account) {
-
-        if (balance) {
-            balance.textContent = "$0.00";
-        }
-
-        if (accountNumber) {
-            accountNumber.textContent =
-                "Not assigned";
-        }
-
-        if (accountType) {
-            accountType.textContent =
-                "No account";
-        }
-
-        return;
-    }
+    setText(
+        "balance",
+        money.format(
+            Number(account.balance) || 0
+        )
+    );
 
 
-    if (balance) {
+    /* Account number */
 
-        balance.textContent =
-            money.format(
-                Number(account.balance || 0)
-            );
+    let accountNumber =
+        account.account_number || "";
+
+
+    accountNumber =
+        String(accountNumber);
+
+
+    if (accountNumber.length > 4) {
+
+        accountNumber =
+            "**** **** " +
+            accountNumber.slice(-4);
 
     }
 
 
-    if (accountNumber) {
-
-        const number =
-            String(
-                account.account_number || ""
-            );
-
-        accountNumber.textContent =
-            number
-                ? `**** **** ${number.slice(-4)}`
-                : "Not assigned";
-
-    }
+    setText(
+        "account_number",
+        accountNumber || "Not available"
+    );
 
 
-    if (accountType) {
+    /* Account type */
 
-        accountType.textContent =
-            account.account_type || "Account";
+    setText(
+        "account_type",
+        account.account_type || "Standard"
+    );
 
-    }
+
+    /* Account status */
+
+    setText(
+        "user_status",
+        account.status || "Active"
+    );
+
 }
 
 
 /* =====================================
-   LOAD TRANSACTIONS
+   NO ACCOUNT
 ===================================== */
 
-async function loadTransactions(accountId) {
+function displayNoAccount() {
 
-    const list =
+    setText(
+        "balance",
+        "$0.00"
+    );
+
+
+    setText(
+        "account_number",
+        "Not available"
+    );
+
+
+    setText(
+        "account_type",
+        "No account"
+    );
+
+
+    setText(
+        "user_status",
+        "Pending"
+    );
+
+
+    const transactionList =
         document.getElementById(
             "transactionList"
         );
 
-    if (!list) {
+
+    if (transactionList) {
+
+        transactionList.innerHTML = `
+            <tr>
+                <td colspan="3">
+                    No banking account is currently associated
+                    with your profile.
+                </td>
+            </tr>
+        `;
+
+    }
+
+}
+
+
+/* =====================================
+   LOAD RECENT TRANSACTIONS
+===================================== */
+
+async function loadRecentTransactions(
+    accountId
+) {
+
+    const transactionList =
+        document.getElementById(
+            "transactionList"
+        );
+
+
+    if (!transactionList) {
         return;
     }
 
 
-    const {
-        data: transactions,
-        error
-    } = await supabase
-        .from("transactions")
-        .select("*")
-        .eq("account_id", accountId)
-        .order(
-            "transaction_date",
-            {
-                ascending: false
+    try {
+
+        const {
+            data: transactions,
+            error
+        } = await supabase
+            .from("transactions")
+            .select("*")
+            .eq("account_id", accountId)
+            .order(
+                "transaction_date",
+                {
+                    ascending: false
+                }
+            )
+            .limit(5);
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        transactionList.innerHTML = "";
+
+
+        if (
+            !transactions ||
+            transactions.length === 0
+        ) {
+
+            transactionList.innerHTML = `
+                <tr>
+                    <td colspan="3">
+                        No transactions yet.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+
+        const money =
+            new Intl.NumberFormat(
+                "en-US",
+                {
+                    style: "currency",
+                    currency: "USD"
+                }
+            );
+
+
+        transactions.forEach(
+            transaction => {
+
+                const row =
+                    document.createElement("tr");
+
+
+                const description =
+                    transaction.description ||
+                    "Bank transaction";
+
+
+                const amount =
+                    money.format(
+                        Number(transaction.amount) || 0
+                    );
+
+
+                const status =
+                    transaction.status ||
+                    "Pending";
+
+
+                row.innerHTML = `
+                    <td>
+                        ${escapeHTML(description)}
+                    </td>
+
+                    <td>
+                        ${amount}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(status)}
+                    </td>
+                `;
+
+
+                transactionList.appendChild(row);
+
             }
-        )
-        .limit(5);
+        );
 
+    }
 
-    if (error) {
+    catch (error) {
 
         console.error(
             "Transaction loading error:",
             error
         );
 
-        displayNoTransactions();
-        return;
+
+        transactionList.innerHTML = `
+            <tr>
+                <td colspan="3">
+                    Unable to load recent transactions.
+                </td>
+            </tr>
+        `;
 
     }
 
-
-    if (
-        !transactions ||
-        transactions.length === 0
-    ) {
-
-        displayNoTransactions();
-        return;
-
-    }
-
-
-    const money =
-        new Intl.NumberFormat(
-            "en-US",
-            {
-                style: "currency",
-                currency: "USD"
-            }
-        );
-
-
-    list.innerHTML = "";
-
-
-    transactions.forEach(
-        (transaction) => {
-
-            const row =
-                document.createElement("tr");
-
-            const description =
-                document.createElement("td");
-
-            const amount =
-                document.createElement("td");
-
-            const status =
-                document.createElement("td");
-
-
-            description.textContent =
-                transaction.description ||
-                "Transaction";
-
-
-            amount.textContent =
-                money.format(
-                    Number(
-                        transaction.amount || 0
-                    )
-                );
-
-
-            status.textContent =
-                transaction.status ||
-                "Pending";
-
-
-            row.appendChild(description);
-            row.appendChild(amount);
-            row.appendChild(status);
-
-            list.appendChild(row);
-
-        }
-    );
-}
-
-
-/* =====================================
-   NO TRANSACTIONS
-===================================== */
-
-function displayNoTransactions() {
-
-    const list =
-        document.getElementById(
-            "transactionList"
-        );
-
-    if (!list) {
-        return;
-    }
-
-
-    list.innerHTML = `
-        <tr>
-            <td colspan="3">
-                No transactions yet
-            </td>
-        </tr>
-    `;
 }
 
 
@@ -419,10 +487,66 @@ function displayNoTransactions() {
 
 async function logout() {
 
-    await supabase.auth.signOut();
+    try {
 
-    localStorage.removeItem("user");
+        await supabase.auth.signOut();
 
-    window.location.href =
-        "login.html";
+        localStorage.removeItem("user");
+
+        window.location.href =
+            "login.html";
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Logout error:",
+            error
+        );
+
+        window.location.href =
+            "login.html";
+
+    }
+
+}
+
+
+/* =====================================
+   HELPER
+===================================== */
+
+function setText(
+    elementId,
+    value
+) {
+
+    const element =
+        document.getElementById(elementId);
+
+
+    if (element) {
+
+        element.textContent =
+            value;
+
+    }
+
+}
+
+
+/* =====================================
+   BASIC HTML ESCAPING
+===================================== */
+
+function escapeHTML(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
 }
