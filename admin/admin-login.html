@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin Login | TrustNova Bank</title>
+
+    <link
+        rel="stylesheet"
+        href="css/admin.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<main class="admin-login-page">
+
+
+    <section class="admin-login-card">
+
+
+        <div class="admin-login-logo">
+
+            <img
+                src="../frontend/images/logo.png"
+                alt="TrustNova Bank"
+            >
+
+        </div>
+
+
+        <h1>
+            Admin Login
+        </h1>
+
+
+        <p>
+            TrustNova Bank Administration
+        </p>
+
+
+        <form id="adminLoginForm">
+
+
+            <div class="admin-form-group">
+
+                <label for="adminEmail">
+                    Email Address
+                </label>
+
+                <input
+                    type="email"
+                    id="adminEmail"
+                    name="email"
+                    placeholder="Enter admin email"
+                    autocomplete="username"
+                    required
+                >
+
+            </div>
+
+
+            <div class="admin-form-group">
+
+                <label for="adminPassword">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="adminPassword"
+                    name="password"
+                    placeholder="Enter admin password"
+                    autocomplete="current-password"
+                    required
+                >
+
+            </div>
+
+
+            <p
+                id="adminLoginMessage"
+                class="admin-login-message"
+                role="alert"
+            ></p>
+
+
+            <button
+                type="submit"
+                id="adminLoginButton"
+                class="admin-button admin-button-primary"
+            >
+                Sign In
+            </button>
+
+
+        </form>
+
+
+        <div class="admin-login-footer">
+
+            <a href="../frontend/index.html">
+                ← Back to Customer Website
+            </a>
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+<!-- Supabase -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<!-- Admin Supabase configuration -->
+
+<script src="js/supabase.js"></script>
+
+
+<!-- Admin authentication -->
+
+<script src="js/admin-login.js"></script>
+
+
+</body>
+
+</html>
