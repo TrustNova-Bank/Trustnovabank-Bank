@@ -1,18 +1,8 @@
-/* =====================================
-   TRUSTNOVA BANK
-   SHARED SUPABASE CONFIGURATION
-===================================== */
-
 const SUPABASE_URL =
-    "YOUR_SUPABASE_PROJECT_URL";
+    "https://ftcmobswvxyhcheabtet.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
-    "YOUR_SUPABASE_PUBLISHABLE_KEY";
-
-
-/* =====================================
-   CREATE SUPABASE CLIENT
-===================================== */
+    "YOUR_PUBLISHABLE_KEY";
 
 const supabase =
     window.supabase.createClient(
