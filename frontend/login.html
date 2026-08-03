@@ -10,9 +10,13 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Login - TrustNova Bank</title>
+    <meta
+        name="description"
+        content="TrustNova Bank customer login"
+    >
 
-    <!-- Main CSS -->
+    <title>Login | TrustNova Bank</title>
+
     <link
         rel="stylesheet"
         href="css/style.css"
@@ -24,136 +28,215 @@
 <body>
 
 
-<section class="login-page">
+    <!-- =====================================
+         HEADER
+    ====================================== -->
 
+    <header class="site-header">
 
-    <div class="login-box">
+        <div class="container">
 
+            <a
+                href="index.html"
+                class="logo"
+            >
 
-        <img
-            src="images/logo.png"
-            class="login-logo"
-            alt="TrustNova Bank"
-        >
-
-
-        <h1>
-            Welcome Back
-        </h1>
-
-
-        <p>
-            Login to your TrustNova Bank account
-        </p>
-
-
-        <form id="loginForm">
-
-
-            <div class="input-group">
-
-                <label for="email">
-                    Email Address
-                </label>
-
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Enter your email"
-                    autocomplete="email"
-                    required
+                <img
+                    src="images/logo.png"
+                    alt="TrustNova Bank"
                 >
 
-            </div>
+                <span>
+                    TrustNova Bank
+                </span>
+
+            </a>
 
 
-            <div class="input-group">
+            <nav class="main-nav">
 
-                <label for="password">
-                    Password
-                </label>
-
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                    required
-                >
-
-            </div>
-
-
-            <div class="remember">
-
-                <label>
-
-                    <input
-                        type="checkbox"
-                        id="remember"
-                        name="remember"
-                    >
-
-                    Remember me
-
-                </label>
-
-
-                <a href="forgot-password.html">
-                    Forgot Password?
+                <a href="index.html">
+                    Home
                 </a>
 
+                <a href="register.html">
+                    Register
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================
+         LOGIN
+    ====================================== -->
+
+    <main class="auth-page">
+
+        <section class="auth-card">
+
+            <div class="auth-header">
+
+                <h1>
+                    Welcome Back
+                </h1>
+
+                <p>
+                    Sign in to your TrustNova Bank account.
+                </p>
+
             </div>
 
 
-            <button type="submit">
-                Login
-            </button>
+            <!-- Message area -->
+
+            <div
+                id="loginMessage"
+                class="form-message"
+                role="alert"
+                aria-live="polite"
+            ></div>
 
 
-        </form>
+
+            <!-- Login form -->
+
+            <form
+                id="loginForm"
+                class="auth-form"
+                novalidate
+            >
 
 
-        <div class="register-link">
+                <!-- EMAIL -->
 
-            Don't have an account?
+                <div class="form-group">
 
-            <a href="register.html">
-                Create Account
-            </a>
+                    <label for="email">
+                        Email Address
+                    </label>
 
-        </div>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        autocomplete="email"
+                        placeholder="Enter your email address"
+                        required
+                    >
 
-
-        <div class="back-home">
-
-            <a href="index.html">
-                ← Back to Home
-            </a>
-
-        </div>
-
-
-    </div>
+                </div>
 
 
-</section>
+
+                <!-- PASSWORD -->
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        autocomplete="current-password"
+                        placeholder="Enter your password"
+                        required
+                    >
+
+                </div>
 
 
-<!-- =====================================
-     JAVASCRIPT
-===================================== -->
 
-<!-- Supabase Library -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+                <!-- OPTIONS -->
 
-<!-- Supabase Configuration -->
-<script src="js/supabase.js"></script>
+                <div class="form-options">
 
-<!-- Customer Login -->
-<script src="js/login.js"></script>
+                    <a href="forgot-password.html">
+                        Forgot Password?
+                    </a>
+
+                </div>
+
+
+
+                <!-- SUBMIT -->
+
+                <button
+                    type="submit"
+                    id="loginButton"
+                    class="primary-button"
+                >
+                    Login
+                </button>
+
+
+            </form>
+
+
+
+            <!-- REGISTER -->
+
+            <div class="auth-footer">
+
+                <p>
+                    Don't have an account?
+                    <a href="register.html">
+                        Create an account
+                    </a>
+                </p>
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+
+
+    <!-- =====================================
+         FOOTER
+    ====================================== -->
+
+    <footer class="site-footer">
+
+        <p>
+            &copy; 2026 TrustNova Bank.
+            All rights reserved.
+        </p>
+
+    </footer>
+
+
+
+    <!-- =====================================
+         SUPABASE
+    ====================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <!-- =====================================
+         SHARED SUPABASE CONFIGURATION
+    ====================================== -->
+
+    <script src="../shared/supabase.js"></script>
+
+
+    <!-- =====================================
+         CUSTOMER LOGIN
+    ====================================== -->
+
+    <script src="js/login.js"></script>
 
 
 </body>
