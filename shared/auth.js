@@ -1,167 +1,11 @@
 /* =====================================
    TRUSTNOVA BANK
-   SHARED AUTHENTICATION UTILITIES
+   SHARED AUTHENTICATION
 ===================================== */
 
-
-/* =====================================
-   REQUIRE CUSTOMER AUTHENTICATION
-===================================== */
-
-async function requireCustomerAuth(
-    redirect = "../frontend/login.html"
-) {
-
-    try {
-
-        const {
-            data,
-            error
-        } = await supabase.auth.getUser();
-
-
-        if (
-            error ||
-            !data ||
-            !data.user
-        ) {
-
-            window.location.href =
-                redirect;
-
-            return null;
-        }
-
-
-        return data.user;
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Customer authentication error:",
-            error
-        );
-
-
-        window.location.href =
-            redirect;
-
-        return null;
-
-    }
-
-}
-
-
-/* =====================================
-   REQUIRE ADMIN AUTHENTICATION
-===================================== */
-
-async function requireAdminAuth(
-    redirect = "../admin/admin-login.html"
-) {
-
-    try {
-
-        const {
-            data,
-            error
-        } = await supabase.auth.getUser();
-
-
-        if (
-            error ||
-            !data ||
-            !data.user
-        ) {
-
-            window.location.href =
-                redirect;
-
-            return null;
-        }
-
-
-        const authUser =
-            data.user;
-
-
-        /* =====================================
-           VERIFY ADMIN RECORD
-        ===================================== */
-
-        const {
-            data: admin,
-            error: adminError
-        } = await supabase
-            .from("admins")
-            .select("*")
-            .eq(
-                "auth_user_id",
-                authUser.id
-            )
-            .maybeSingle();
-
-
-        if (adminError) {
-
-            console.error(
-                "Admin verification error:",
-                adminError
-            );
-
-            window.location.href =
-                redirect;
-
-            return null;
-
-        }
-
-
-        if (!admin) {
-
-            console.warn(
-                "Authenticated user is not an administrator."
-            );
-
-            await supabase.auth.signOut();
-
-            window.location.href =
-                redirect;
-
-            return null;
-
-        }
-
-
-        return admin;
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Admin authentication error:",
-            error
-        );
-
-
-        window.location.href =
-            redirect;
-
-        return null;
-
-    }
-
-}
-
-
-/* =====================================
-   GET CURRENT USER
-===================================== */
-
+/**
+ * Get the currently authenticated user.
+ */
 async function getCurrentUser() {
 
     try {
@@ -171,37 +15,131 @@ async function getCurrentUser() {
             error
         } = await supabase.auth.getUser();
 
-
         if (error) {
-            throw error;
-        }
+            console.error(
+                "Get user error:",
+                error
+            );
 
+            return null;
+        }
 
         return data?.user || null;
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "Get current user error:",
+            "Authentication error:",
             error
         );
 
         return null;
-
     }
-
 }
 
 
-/* =====================================
-   SIGN OUT
-===================================== */
+/**
+ * Require a customer to be authenticated.
+ *
+ * Returns the authenticated user or redirects
+ * to the customer login page.
+ */
+async function requireCustomerAuth() {
 
-async function signOut(
-    redirect = "../frontend/login.html"
-) {
+    const user =
+        await getCurrentUser();
+
+    if (!user) {
+
+        window.location.href =
+            "login.html";
+
+        return null;
+    }
+
+    return user;
+}
+
+
+/**
+ * Require an authenticated admin.
+ *
+ * The database remains the authority for admin
+ * authorization through the RLS policies.
+ */
+async function requireAdminAuth() {
+
+    const user =
+        await getCurrentUser();
+
+    if (!user) {
+
+        window.location.href =
+            "admin-login.html";
+
+        return null;
+    }
+
+    try {
+
+        const {
+            data,
+            error
+        } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq(
+                "user_id",
+                user.id
+            )
+            .eq(
+                "role",
+                "admin"
+            )
+            .maybeSingle();
+
+        if (error) {
+
+            console.error(
+                "Admin authorization error:",
+                error
+            );
+
+            window.location.href =
+                "admin-login.html";
+
+            return null;
+        }
+
+        if (!data) {
+
+            window.location.href =
+                "admin-login.html";
+
+            return null;
+        }
+
+        return user;
+
+    } catch (error) {
+
+        console.error(
+            "Admin authentication error:",
+            error
+        );
+
+        window.location.href =
+            "admin-login.html";
+
+        return null;
+    }
+}
+
+
+/**
+ * Sign out the current user.
+ */
+async function signOutUser() {
 
     try {
 
@@ -209,64 +147,51 @@ async function signOut(
             error
         } = await supabase.auth.signOut();
 
-
         if (error) {
             throw error;
         }
 
-    }
+        localStorage.removeItem("user");
 
-    catch (error) {
+        return true;
+
+    } catch (error) {
 
         console.error(
             "Sign out error:",
             error
         );
 
+        return false;
     }
-
-
-    localStorage.removeItem(
-        "user"
-    );
-
-
-    window.location.href =
-        redirect;
-
 }
 
 
-/* =====================================
-   AUTH STATE LISTENER
-===================================== */
-
-function watchAuthState(
+/**
+ * Listen for authentication changes.
+ */
+function listenForAuthChanges(
     callback
 ) {
 
-    if (
-        typeof callback !==
-        "function"
-    ) {
+    const {
+        data
+    } = supabase.auth.onAuthStateChange(
+        (event, session) => {
 
-        return null;
+            if (
+                typeof callback ===
+                "function"
+            ) {
 
-    }
-
-
-    return supabase.auth.onAuthStateChange(
-        (
-            event,
-            session
-        ) => {
-
-            callback(
-                event,
-                session
-            );
+                callback(
+                    event,
+                    session
+                );
+            }
 
         }
     );
 
+    return data?.subscription || null;
 }
