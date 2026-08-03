@@ -12,7 +12,10 @@
 
     <title>Admin Dashboard | TrustNova Bank</title>
 
-    <!-- Admin CSS -->
+    <!-- =====================================
+         ADMIN CSS
+    ====================================== -->
+
     <link
         rel="stylesheet"
         href="css/admin.css"
@@ -52,6 +55,10 @@
         </div>
 
 
+        <!-- =====================================
+             ADMIN NAVIGATION
+        ====================================== -->
+
         <nav class="admin-nav">
 
 
@@ -68,7 +75,7 @@
             </a>
 
 
-            <a href="admin-accounts.html">
+            <a href="admin-account.html">
                 Accounts
             </a>
 
@@ -88,18 +95,12 @@
             </a>
 
 
-            <a href="user-dashboard.html">
+            <a href="../frontend/dashboard.html">
                 Customer Dashboard
             </a>
 
 
-            <a href="admin-login.html">
-                Logout
-            </a>
-
-
         </nav>
-
 
     </aside>
 
@@ -112,9 +113,12 @@
     <main class="admin-main">
 
 
-        <!-- Header -->
+        <!-- =====================================
+             ADMIN HEADER
+        ====================================== -->
 
         <header class="admin-header">
+
 
             <div>
 
@@ -137,16 +141,19 @@
                 Logout
             </button>
 
+
         </header>
 
 
 
         <!-- =====================================
-             DASHBOARD CARDS
+             DASHBOARD STATISTICS
         ====================================== -->
 
         <section class="admin-cards">
 
+
+            <!-- USERS -->
 
             <div class="admin-card">
 
@@ -164,6 +171,7 @@
             </div>
 
 
+            <!-- ACCOUNTS -->
 
             <div class="admin-card">
 
@@ -181,6 +189,7 @@
             </div>
 
 
+            <!-- TRANSACTIONS -->
 
             <div class="admin-card">
 
@@ -198,6 +207,7 @@
             </div>
 
 
+            <!-- SUPPORT -->
 
             <div class="admin-card">
 
@@ -220,7 +230,7 @@
 
 
         <!-- =====================================
-             RECENT ACTIVITY
+             RECENT TRANSACTIONS
         ====================================== -->
 
         <section class="admin-section">
@@ -268,7 +278,6 @@
 
                     <tbody id="transactionList">
 
-
                         <tr>
 
                             <td colspan="5">
@@ -276,7 +285,6 @@
                             </td>
 
                         </tr>
-
 
                     </tbody>
 
@@ -306,6 +314,8 @@
             <div class="admin-cards">
 
 
+                <!-- USER MANAGEMENT -->
+
                 <div class="admin-card">
 
                     <h3>
@@ -323,6 +333,8 @@
 
 
 
+                <!-- ACCOUNT MANAGEMENT -->
+
                 <div class="admin-card">
 
                     <h3>
@@ -330,7 +342,7 @@
                     </h3>
 
                     <a
-                        href="admin-accounts.html"
+                        href="admin-account.html"
                         class="admin-button admin-button-primary"
                     >
                         Manage Accounts
@@ -339,6 +351,8 @@
                 </div>
 
 
+
+                <!-- OPEN ACCOUNT -->
 
                 <div class="admin-card">
 
@@ -356,6 +370,8 @@
                 </div>
 
 
+
+                <!-- TRANSACTIONS -->
 
                 <div class="admin-card">
 
@@ -387,24 +403,45 @@
 
 
 <!-- =====================================
-     SUPABASE
+     SUPABASE LIBRARY
 ====================================== -->
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
 
 
 <!-- =====================================
-     SUPABASE CONFIGURATION
+     SHARED SUPABASE CONFIGURATION
 ====================================== -->
 
-<script src="js/supabase.js"></script>
+<script src="../shared/supabase.js"></script>
+
 
 
 <!-- =====================================
-     ADMIN DASHBOARD
+     SHARED AUTHENTICATION
 ====================================== -->
 
-<script src="js/admin-dashboard.js"></script>
+<script src="../shared/auth.js"></script>
+
+
+
+<!-- =====================================
+     SHARED UTILITIES
+====================================== -->
+
+<script src="../shared/utils.js"></script>
+
+
+
+<!-- =====================================
+     SHARED CONSTANTS
+====================================== -->
+
+<script src="../shared/constants.js"></script>
+
 
 
 <!-- =====================================
@@ -412,6 +449,14 @@
 ====================================== -->
 
 <script src="js/admin-auth.js"></script>
+
+
+
+<!-- =====================================
+     ADMIN DASHBOARD
+====================================== -->
+
+<script src="js/admin-dashboard.js"></script>
 
 
 </body>
