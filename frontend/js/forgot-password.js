@@ -1,149 +1,137 @@
 /* =====================================
    TRUSTNOVA BANK
-   CUSTOMER PASSWORD RESET
-   SUPABASE AUTHENTICATION
+   FORGOT PASSWORD
 ===================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    const resetForm =
-        document.getElementById("resetForm");
+    const form =
+        document.getElementById("forgotPasswordForm");
 
-    if (!resetForm) {
-        console.error("resetForm was not found.");
+    if (!form) {
+        console.error("forgotPasswordForm was not found.");
         return;
     }
 
-
-    resetForm.addEventListener(
+    form.addEventListener(
         "submit",
-        async (event) => {
-
-            event.preventDefault();
-
-
-            const emailElement =
-                document.getElementById("email");
+        handleForgotPassword
+    );
+});
 
 
-            if (!emailElement) {
+async function handleForgotPassword(event) {
 
-                alert(
-                    "Email field is missing."
-                );
+    event.preventDefault();
 
-                return;
+    const email =
+        document.getElementById("email")?.value.trim();
+
+    const message =
+        document.getElementById("forgotPasswordMessage");
+
+    if (!email) {
+
+        showMessage(
+            message,
+            "Please enter your email address.",
+            true
+        );
+
+        return;
+    }
+
+    setLoading(true);
+
+    try {
+
+        /*
+         * Replace this with your actual deployed
+         * password-reset page URL when ready.
+         */
+        const redirectTo =
+            `${window.location.origin}/frontend/update-password.html`;
+
+        const {
+            error
+        } = await supabase.auth.resetPasswordForEmail(
+            email,
+            {
+                redirectTo
             }
+        );
 
-
-            const email =
-                emailElement.value
-                    .trim()
-                    .toLowerCase();
-
-
-            if (!email) {
-
-                alert(
-                    "Please enter your email address."
-                );
-
-                emailElement.focus();
-
-                return;
-            }
-
-
-            const submitButton =
-                resetForm.querySelector(
-                    'button[type="submit"]'
-                );
-
-
-            if (submitButton) {
-
-                submitButton.disabled = true;
-
-                submitButton.textContent =
-                    "Sending...";
-            }
-
-
-            try {
-
-                /* =====================================
-                   SEND PASSWORD RESET EMAIL
-                ===================================== */
-
-                const {
-                    error
-                } = await supabase.auth
-                    .resetPasswordForEmail(
-                        email,
-                        {
-                            redirectTo:
-                                window.location.origin +
-                                "/frontend/login.html"
-                        }
-                    );
-
-
-                if (error) {
-
-                    console.error(
-                        "Password reset error:",
-                        error
-                    );
-
-                    alert(
-                        "Unable to send the password reset email. Please try again."
-                    );
-
-                    return;
-                }
-
-
-                /* =====================================
-                   SUCCESS
-                ===================================== */
-
-                alert(
-                    "Password reset instructions have been sent to your email."
-                );
-
-
-                resetForm.reset();
-
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "Unexpected password reset error:",
-                    error
-                );
-
-                alert(
-                    "Something went wrong. Please try again."
-                );
-
-            }
-
-            finally {
-
-                if (submitButton) {
-
-                    submitButton.disabled = false;
-
-                    submitButton.textContent =
-                        "Reset Password";
-
-                }
-
-            }
-
+        if (error) {
+            throw error;
         }
+
+        showMessage(
+            message,
+            "If an account exists for this email, a password-reset email has been sent.",
+            false
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Password reset error:",
+            error
+        );
+
+        showMessage(
+            message,
+            "Unable to process the password-reset request. Please try again.",
+            true
+        );
+
+    } finally {
+
+        setLoading(false);
+    }
+}
+
+
+function setLoading(isLoading) {
+
+    const button =
+        document.querySelector(
+            '#forgotPasswordForm button[type="submit"]'
+        );
+
+    if (!button) {
+        return;
+    }
+
+    button.disabled =
+        isLoading;
+
+    button.textContent =
+        isLoading
+            ? "Sending..."
+            : "Reset Password";
+}
+
+
+function showMessage(
+    element,
+    text,
+    isError
+) {
+
+    if (!element) {
+        return;
+    }
+
+    element.textContent =
+        text;
+
+    element.classList.toggle(
+        "error",
+        Boolean(isError)
     );
 
-});
+    element.classList.toggle(
+        "success",
+        !isError
+    );
+}
