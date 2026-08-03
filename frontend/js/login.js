@@ -1,7 +1,6 @@
 /* =====================================
    TRUSTNOVA BANK
    CUSTOMER LOGIN
-   SUPABASE AUTHENTICATION
 ===================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,246 +13,172 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-
     loginForm.addEventListener(
         "submit",
-        async (event) => {
+        handleLogin
+    );
+});
 
-            event.preventDefault();
 
+async function handleLogin(event) {
 
-            /* =====================================
-               FORM ELEMENTS
-            ===================================== */
+    event.preventDefault();
 
-            const emailElement =
-                document.getElementById("email");
+    const emailInput =
+        document.getElementById("email");
 
-            const passwordElement =
-                document.getElementById("password");
+    const passwordInput =
+        document.getElementById("password");
 
-            const submitButton =
-                loginForm.querySelector(
-                    'button[type="submit"]'
-                );
+    const message =
+        document.getElementById("loginMessage");
 
+    if (!emailInput || !passwordInput) {
+        console.error(
+            "Login fields were not found."
+        );
+        return;
+    }
 
-            if (
-                !emailElement ||
-                !passwordElement
-            ) {
+    const email =
+        emailInput.value.trim();
 
-                alert(
-                    "Login form is not configured correctly."
-                );
+    const password =
+        passwordInput.value;
 
-                return;
-            }
+    if (!email || !password) {
 
+        showLoginMessage(
+            message,
+            "Please enter your email and password.",
+            true
+        );
 
-            /* =====================================
-               GET VALUES
-            ===================================== */
+        return;
+    }
 
-            const email =
-                emailElement.value
-                    .trim()
-                    .toLowerCase();
+    setLoginLoading(true);
 
-            const password =
-                passwordElement.value;
+    try {
 
+        const {
+            data,
+            error
+        } = await supabase.auth.signInWithPassword({
+            email,
+            password
+        });
 
-            /* =====================================
-               VALIDATION
-            ===================================== */
-
-            if (!email) {
-
-                alert(
-                    "Please enter your email address."
-                );
-
-                emailElement.focus();
-
-                return;
-            }
-
-
-            if (!password) {
-
-                alert(
-                    "Please enter your password."
-                );
-
-                passwordElement.focus();
-
-                return;
-            }
-
-
-            /* =====================================
-               DISABLE LOGIN BUTTON
-            ===================================== */
-
-            if (submitButton) {
-
-                submitButton.disabled = true;
-
-                submitButton.textContent =
-                    "Signing in...";
-
-            }
-
-
-            try {
-
-                /* =====================================
-                   1. SUPABASE AUTHENTICATION
-                ===================================== */
-
-                const {
-                    data: authData,
-                    error: authError
-                } =
-                    await supabase.auth
-                        .signInWithPassword({
-
-                            email: email,
-
-                            password: password
-
-                        });
-
-
-                if (authError) {
-
-                    console.error(
-                        "Supabase authentication error:",
-                        authError
-                    );
-
-                    alert(
-                        "Invalid email or password."
-                    );
-
-                    return;
-                }
-
-
-                const authUser =
-                    authData?.user;
-
-
-                if (!authUser) {
-
-                    alert(
-                        "Login could not be completed."
-                    );
-
-                    return;
-                }
-
-
-                /* =====================================
-                   2. LOAD CUSTOMER PROFILE
-                ===================================== */
-
-                const {
-                    data: profile,
-                    error: profileError
-                } =
-                    await supabase
-                        .from("users")
-                        .select("*")
-                        .eq(
-                            "auth_user_id",
-                            authUser.id
-                        )
-                        .maybeSingle();
-
-
-                if (profileError) {
-
-                    console.error(
-                        "Customer profile error:",
-                        profileError
-                    );
-
-                    await supabase.auth.signOut();
-
-                    alert(
-                        "Your account was authenticated, but your customer profile could not be loaded."
-                    );
-
-                    return;
-                }
-
-
-                /* =====================================
-                   3. PROFILE NOT FOUND
-                ===================================== */
-
-                if (!profile) {
-
-                    await supabase.auth.signOut();
-
-                    alert(
-                        "Customer profile not found. Please contact support."
-                    );
-
-                    return;
-                }
-
-
-                /* =====================================
-                   4. SAVE NON-SENSITIVE PROFILE DATA
-                ===================================== */
-
-                localStorage.setItem(
-                    "user",
-                    JSON.stringify(profile)
-                );
-
-
-                /* =====================================
-                   5. REDIRECT
-                ===================================== */
-
-                window.location.href =
-                    "dashboard.html";
-
-            }
-
-
-            catch (error) {
-
-                console.error(
-                    "Unexpected login error:",
-                    error
-                );
-
-                alert(
-                    "Unable to complete login. Please try again."
-                );
-
-            }
-
-
-            finally {
-
-                if (submitButton) {
-
-                    submitButton.disabled = false;
-
-                    submitButton.textContent =
-                        "Login";
-
-                }
-
-            }
-
+        if (error) {
+            throw error;
         }
+
+        if (!data?.user) {
+            throw new Error(
+                "Unable to establish your account session."
+            );
+        }
+
+        showLoginMessage(
+            message,
+            "Login successful. Redirecting...",
+            false
+        );
+
+        window.location.href =
+            "../frontend/dashboard.html";
+
+    } catch (error) {
+
+        console.error(
+            "Customer login error:",
+            error
+        );
+
+        showLoginMessage(
+            message,
+            getLoginErrorMessage(error),
+            true
+        );
+
+    } finally {
+
+        setLoginLoading(false);
+    }
+}
+
+
+function setLoginLoading(isLoading) {
+
+    const button =
+        document.querySelector(
+            '#loginForm button[type="submit"]'
+        );
+
+    if (!button) {
+        return;
+    }
+
+    button.disabled =
+        isLoading;
+
+    button.textContent =
+        isLoading
+            ? "Signing in..."
+            : "Login";
+}
+
+
+function showLoginMessage(
+    element,
+    text,
+    isError
+) {
+
+    if (!element) {
+        return;
+    }
+
+    element.textContent =
+        text;
+
+    element.classList.toggle(
+        "error",
+        Boolean(isError)
     );
 
-});
+    element.classList.toggle(
+        "success",
+        !isError
+    );
+}
+
+
+function getLoginErrorMessage(error) {
+
+    const message =
+        String(
+            error?.message || ""
+        ).toLowerCase();
+
+    if (
+        message.includes("invalid login") ||
+        message.includes("invalid credentials")
+    ) {
+        return "Incorrect email or password.";
+    }
+
+    if (
+        message.includes("email not confirmed")
+    ) {
+        return "Please confirm your email before signing in.";
+    }
+
+    if (
+        message.includes("too many requests")
+    ) {
+        return "Too many login attempts. Please try again later.";
+    }
+
+    return "Unable to sign in. Please check your details and try again.";
+}
