@@ -1,93 +1,53 @@
 /* =====================================
    TRUSTNOVA BANK
-   SHARED APPLICATION CONSTANTS
+   SHARED CONSTANTS
 ===================================== */
 
+const APP_NAME = "TrustNova Bank";
 
-/* =====================================
-   APPLICATION
-===================================== */
+const CUSTOMER_LOGIN_PAGE = "login.html";
+const CUSTOMER_DASHBOARD_PAGE = "dashboard.html";
 
-const APP_NAME =
-    "TrustNova Bank";
+const ADMIN_LOGIN_PAGE = "admin-login.html";
+const ADMIN_DASHBOARD_PAGE = "admin.html";
 
-const APP_YEAR =
-    2026;
+const TABLES = {
+    USERS: "users",
+    ADMINS: "admins",
+    ACCOUNTS: "accounts",
+    TRANSACTIONS: "transactions",
+    SUPPORT_TICKETS: "support_tickets",
+    AUDIT_LOGS: "audit_logs",
+    EXCHANGE_RATES: "exchange_rates",
+    FIXED_DEPOSITS: "fixed_deposits",
+    CURRENCIES: "currencies",
+    USER_ROLES: "user_roles"
+};
 
+const ROLES = {
+    CUSTOMER: "customer",
+    ADMIN: "admin"
+};
 
-/* =====================================
-   DEFAULT SETTINGS
-===================================== */
+const TRANSACTION_TYPES = {
+    DEPOSIT: "deposit",
+    WITHDRAWAL: "withdrawal",
+    TRANSFER: "transfer",
+    PAYMENT: "payment"
+};
 
-const DEFAULT_CURRENCY =
-    "USD";
+const TRANSACTION_STATUS = {
+    PENDING: "pending",
+    COMPLETED: "completed",
+    FAILED: "failed",
+    CANCELLED: "cancelled"
+};
 
-const DEFAULT_ACCOUNT_TYPE =
-    "Standard";
+const ACCOUNT_STATUS = {
+    ACTIVE: "active",
+    INACTIVE: "inactive",
+    SUSPENDED: "suspended",
+    CLOSED: "closed"
+};
 
-const DEFAULT_ACCOUNT_STATUS =
-    "Active";
-
-const DEFAULT_TRANSACTION_STATUS =
-    "Pending";
-
-
-/* =====================================
-   SUPPORTED CURRENCIES
-===================================== */
-
-const SUPPORTED_CURRENCIES = [
-    "USD",
-    "NGN",
-    "EUR",
-    "GBP"
-];
-
-
-/* =====================================
-   ACCOUNT TYPES
-===================================== */
-
-const ACCOUNT_TYPES = [
-    "Standard",
-    "Savings",
-    "Checking"
-];
-
-
-/* =====================================
-   TRANSACTION TYPES
-===================================== */
-
-const TRANSACTION_TYPES = [
-    "Payment",
-    "Bill Payment",
-    "Transfer",
-    "Service Payment",
-    "Deposit",
-    "Withdrawal"
-];
-
-
-/* =====================================
-   TRANSACTION STATUSES
-===================================== */
-
-const TRANSACTION_STATUSES = [
-    "Pending",
-    "Completed",
-    "Failed",
-    "Cancelled"
-];
-
-
-/* =====================================
-   ACCOUNT STATUSES
-===================================== */
-
-const ACCOUNT_STATUSES = [
-    "Active",
-    "Inactive",
-    "Suspended",
-    "Closed"
-];
+const DEFAULT_CURRENCY = "USD";
