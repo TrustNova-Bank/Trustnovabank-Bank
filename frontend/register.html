@@ -1,220 +1,117 @@
-/* =====================================
-   TRUSTNOVA BANK
-   CUSTOMER REGISTRATION
-===================================== */
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    const registerForm =
-        document.getElementById("registerForm");
-
-    if (!registerForm) {
-        console.error("registerForm was not found.");
-        return;
-    }
-
-    registerForm.addEventListener(
-        "submit",
-        handleRegistration
-    );
-});
-
-
-async function handleRegistration(event) {
-
-    event.preventDefault();
-
-    const email =
-        document.getElementById("email")?.value.trim();
-
-    const password =
-        document.getElementById("password")?.value;
-
-    const confirmPassword =
-        document.getElementById("confirmPassword")?.value;
-
-    const message =
-        document.getElementById("registerMessage");
-
-    if (!email || !password || !confirmPassword) {
-
-        showRegisterMessage(
-            message,
-            "Please complete all required fields.",
-            true
-        );
-
-        return;
-    }
-
-    if (password !== confirmPassword) {
-
-        showRegisterMessage(
-            message,
-            "Passwords do not match.",
-            true
-        );
-
-        return;
-    }
-
-    if (password.length < 8) {
-
-        showRegisterMessage(
-            message,
-            "Password must be at least 8 characters.",
-            true
-        );
-
-        return;
-    }
-
-    setRegisterLoading(true);
-
-    try {
-
-        const {
-            data,
-            error
-        } = await supabase.auth.signUp({
-            email,
-            password
-        });
-
-        if (error) {
-            throw error;
-        }
-
-        /*
-         * If email confirmation is enabled,
-         * Supabase may return a user without
-         * an active session.
-         */
-        if (data?.user && !data?.session) {
-
-            showRegisterMessage(
-                message,
-                "Registration successful. Please check your email to confirm your account.",
-                false
-            );
-
-            return;
-        }
-
-        if (data?.session) {
-
-            showRegisterMessage(
-                message,
-                "Registration successful. Redirecting...",
-                false
-            );
-
-            window.location.href =
-                "dashboard.html";
-
-            return;
-        }
-
-        showRegisterMessage(
-            message,
-            "Registration completed. Please check your email.",
-            false
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Registration error:",
-            error
-        );
-
-        showRegisterMessage(
-            message,
-            getRegistrationErrorMessage(error),
-            true
-        );
-
-    } finally {
-
-        setRegisterLoading(false);
-    }
-}
-
-
-function setRegisterLoading(
-    isLoading
-) {
-
-    const button =
-        document.querySelector(
-            '#registerForm button[type="submit"]'
-        );
-
-    if (!button) {
-        return;
-    }
-
-    button.disabled =
-        isLoading;
-
-    button.textContent =
-        isLoading
-            ? "Creating account..."
-            : "Register";
-}
-
-
-function showRegisterMessage(
-    element,
-    text,
-    isError
-) {
-
-    if (!element) {
-        return;
-    }
-
-    element.textContent =
-        text;
-
-    element.classList.toggle(
-        "error",
-        Boolean(isError)
-    );
-
-    element.classList.toggle(
-        "success",
-        !isError
-    );
-}
-
-
-function getRegistrationErrorMessage(
-    error
-) {
-
-    const message =
-        String(
-            error?.message || ""
-        ).toLowerCase();
-
-    if (
-        message.includes("password")
-    ) {
-        return "Please choose a stronger password.";
-    }
-
-    if (
-        message.includes("invalid email")
-    ) {
-        return "Please enter a valid email address.";
-    }
-
-    if (
-        message.includes("rate limit")
-    ) {
-        return "Too many registration attempts. Please try again later.";
-    }
-
-    return "Unable to create your account. Please check your information and try again.";
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+<title>TrustNova Bank - Register</title>
+<link
+    rel="stylesheet"
+    href="css/register.css"
+>
+</head>
+<body>
+<main class="register-page">
+    <section class="register-card">
+        <h1>Create Your Account</h1>
+        <p>
+            Register for your TrustNova Bank account.
+        </p>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="first_name">
+                    First Name
+                </label>
+                <input
+                    type="text"
+                    id="first_name"
+                    name="first_name"
+                    autocomplete="given-name"
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label for="last_name">
+                    Last Name
+                </label>
+                <input
+                    type="text"
+                    id="last_name"
+                    name="last_name"
+                    autocomplete="family-name"
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label for="email">
+                    Email Address
+                </label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    autocomplete="email"
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label for="phone">
+                    Phone Number
+                </label>
+                <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    autocomplete="tel"
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label for="nationality">
+                    Nationality
+                </label>
+                <input
+                    type="text"
+                    id="nationality"
+                    name="nationality"
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label for="password">
+                    Password
+                </label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    autocomplete="new-password"
+                    minlength="6"
+                    required
+                >
+            </div>
+            <button
+                type="submit"
+            >
+                Create Account
+            </button>
+        </form>
+        <p id="registerMessage"></p>
+        <p>
+            Already have an account?
+            <a href="login.html">Sign in</a>
+        </p>
+    </section>
+</main>
+<!-- Supabase JavaScript library -->
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+<!-- TrustNova Supabase configuration -->
+<script src="supabase.js"></script>
+<!-- Customer registration -->
+<script src="register.js"></script>
+</body>
+</html>
